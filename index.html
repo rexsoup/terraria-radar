@@ -300,8 +300,8 @@
 
         <div class="tips-box">
             <p style="margin-top:0; color:#fff; font-weight:800;">💡 灰機維基便捷指南：</p>
-            1. **原版模式**：完美支援雙欄內嵌，搜尋結果直接在右側觀測鏡顯現。<br><br>
-            2. **灰機災厄模式**：由於灰機維基有防內嵌保護，輸入名稱送出後，系統將自動為您**彈出獨立的灰機專屬搜尋網頁**，100% 避開錯誤，給您最完整的中文數據。
+            1. **原版模式**：支援雙欄內嵌，搜尋結果直接在右側觀測鏡顯現。<br><br>
+            2. **灰機災厄模式**：採用 **Google 全量站內雷達**。輸入送出後，一秒幫你找出灰機維基內最精準的道具正文分頁，100% 避開「高級搜尋」權限錯誤！
         </div>
     </div>
 
@@ -323,10 +323,9 @@
                 color: "#00e5ff"
             },
             calamity: {
-                base: "https://calamity.huijiwiki.com/wiki/",
                 title: "Calamity",
-                subtitle: "灰機擴充庫 · 獨立觀測鏡",
-                placeholder: "輸入灰機災厄道具（直接 Enter 送出）...",
+                subtitle: "灰機擴充庫 · 全量物理雷達",
+                placeholder: "輸入灰機災厄道具（支援繁簡、Boss、武器）...",
                 color: "#ff4500"
             }
         };
@@ -364,8 +363,8 @@
                 frame.classList.remove('viewport-active');
                 frame.src = "";
                 placeholder.style.opacity = '1';
-                placeholderText.innerHTML = `🔥 灰機維基便捷分流：<br><br>左側輸入並送出後，將自動開啟新視窗跳轉至灰機維基數據核心！`;
-                document.getElementById('statusMessage').innerText = "CALAMITY MODE: 已準備好對接灰機維基獨立搜尋鏈接。";
+                placeholderText.innerHTML = `🔥 站內全量搜尋解鎖：<br><br>左側輸入並送出後，將直接調用精準雷達，秒開灰機維基內的正文頁面！`;
+                document.getElementById('statusMessage').innerText = "CALAMITY MODE: 已啟用 Google 全量分流定位。";
             } else {
                 frame.classList.remove('viewport-active');
                 placeholder.style.opacity = '1';
@@ -384,16 +383,15 @@
             const query = document.getElementById('wikiSearchInput').value.trim();
             if (!query) return;
 
-            const cfg = CONFIG[currentMode];
-            const formattedQuery = encodeURIComponent(query.replace(/\s+/g, '_'));
-            
             if (currentMode === 'calamity') {
-                // ⚡ 直接生成灰機維基專用的標準搜尋跳轉連結，以最直覺的新分頁打開
-                const targetUrl = `${cfg.base}Special:Search?search=${formattedQuery}`;
-                document.getElementById('statusMessage').innerText = `LAUNCH: 已成功為您開啟灰機維基「${query}」的獨立搜尋分頁。`;
+                // ⚡ 終極物理外掛：打包成 site 站內精準檢索
+                const targetUrl = `https://www.google.com/search?q=site:calamity.huijiwiki.com+${encodeURIComponent(query)}`;
+                document.getElementById('statusMessage').innerText = `LAUNCH: 已成功為您調用全量搜尋，直擊灰機維基「${query}」專頁。`;
                 window.open(targetUrl, '_blank');
             } else {
                 // 原版模式維持右側嵌入
+                const cfg = CONFIG[currentMode];
+                const formattedQuery = encodeURIComponent(query.replace(/\s+/g, '_'));
                 const targetUrl = `${cfg.base}Special:Search?search=${formattedQuery}&variant=zh-tw`;
                 document.getElementById('statusMessage').innerText = `TRANSMITTING: 正在將「${query}」送往右側觀測鏡...`;
                 teleportToViewport(targetUrl, query);
