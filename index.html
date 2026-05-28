@@ -63,7 +63,7 @@
 
         .left-panel {
             width: 45%;
-            min-width: 450px;
+            min-width: 420px;
             height: 100vh;
             box-sizing: border-box;
             padding: 40px;
@@ -111,10 +111,10 @@
         }
 
         .pixel-title {
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 900;
             margin: 0;
-            letter-spacing: 14px;
+            letter-spacing: 10px;
             text-transform: uppercase;
             background: linear-gradient(to bottom, #ffffff 20%, var(--color-mana) 90%);
             -webkit-background-clip: text;
@@ -123,9 +123,9 @@
         }
 
         .pixel-subtitle {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #b0bfc1;
-            letter-spacing: 5px;
+            letter-spacing: 4px;
             margin: 15px 0 35px 0;
             text-transform: uppercase;
             display: flex;
@@ -214,14 +214,6 @@
             border-radius: 2px;
         }
 
-        .tips-box code {
-            color: #ffffff;
-            background: #111424;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-
         .right-panel {
             width: 55%;
             height: 100vh;
@@ -274,6 +266,30 @@
         }
 
         .viewport-active { opacity: 1; }
+
+        /* 📱 行動裝置完美響應式斷點設定 */
+        @media (max-width: 992px) {
+            body {
+                flex-direction: column;
+                overflow-y: auto;
+                height: auto;
+            }
+            .left-panel {
+                width: 100%;
+                min-width: 100%;
+                height: auto;
+                padding: 30px 20px;
+                border-right: none;
+                border-bottom: 4px solid #1a1d30;
+            }
+            .right-panel {
+                width: 100%;
+                height: 70vh;
+            }
+            .pixel-title {
+                font-size: 2.8rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -299,9 +315,9 @@
         <div class="game-status-panel" id="statusMessage">READY: 輸入關鍵字後按下 Enter 或點擊傳送...</div>
 
         <div class="tips-box">
-            <p style="margin-top:0; color:#fff; font-weight:800;">💡 灰機極致直達指南：</p>
-            1. **原版模式**：完美雙欄內嵌，直接在右側觀測鏡顯現。<br><br>
-            2. **灰機災厄模式**：內建**「繁轉簡直達引擎」**。不論你打繁體字還是簡體字，送出後會直接跳過所有搜尋結果頁與高級搜尋阻擋，**一秒直接炸開該道具的灰機維基正文頁面**。
+            <p style="margin-top:0; color:#fff; font-weight:800;">💡 智慧導航終極協議：</p>
+            1. **原版模式**：100% 強制繁體化，搜尋結果直接在右側（或手機下方）無痛看。<br><br>
+            2. **灰機災厄模式**：對接官方開放檢索鏈結，送出後自動調用灰機伺服器核心直擊道具正文，手機電腦均完美相容。
         </div>
     </div>
 
@@ -314,35 +330,18 @@
     </div>
 
     <script {nonce}>
-        // ⚡ 內建極輕量繁轉簡字型對照表（精準覆蓋 Terraria 與災厄常見字詞，確保直達率）
-        const TC_TO_SC = {
-            '犽': '犽', '絨': '绒', '星': '星', '流': '流', '龍': '龙', '劍': '剑', '聖': '圣', '啟': '启', '示': '示', '錄': '录',
-            '神': '神', '吞': '吞', '噬': '噬', '者': '者', '災': '灾', '厄': '厄', '織': '织', '網': '网', '冥': '冥', '臣': '臣',
-            '巨': '巨', '浪': '浪', '硫': '硫', '磺': '磺', '海': '海', '淵': '渊', '核': '核', '彈': '弹', '金': '金', '屬': '属',
-            '精': '精', '煉': '炼', '錠': '锭', '礦': '矿', '斬': '斩', '魔': '魔', '刀': '刀', '杖': '杖', '弓': '弓', '槍': '枪',
-            '彈': '弹', '藥': '药', '裝': '装', '甲': '甲', '飾': '饰', '品': '品', '魂': '魂', '精': '精', '華魂': '华魂', '天': '天',
-            '體': '体', '璀': '璀', '璨': '璨', '輝': '辉', '煌': '煌', '褻': '亵', '瀆': '渎', '天': '天', '使': '使', '惡': '恶',
-            '魔': '魔', '遠': '远', '古': '古', '遺': '遗', '物': '物', '不': '不', '淨': '净', '蠕': '蠕', '蟲': '虫', '眼': '眼',
-            '球': '球', '雙': '双', '子': '子', '鋼': '钢', '鐵': '铁', '毀': '毁', '滅': '灭', '精靈': '精灵', '幻': '幻', '影': '影'
-        };
-
-        function convertToSC(text) {
-            return text.split('').map(char => TC_TO_SC[char] || char).join('');
-        }
-
+        // 核心設定完全物理隔離，確保互不干擾
         const CONFIG = {
             vanilla: {
-                base: "https://terraria.wiki.gg/zh/wiki/",
                 title: "Terraria",
                 subtitle: "官方資料庫 · 即時觀測雷達",
                 placeholder: "請輸入原版武器、王怪、配方...",
                 color: "#00e5ff"
             },
             calamity: {
-                base: "https://calamity.huijiwiki.com/wiki/",
                 title: "Calamity",
-                subtitle: "灰機擴充庫 · 標題直達雷達",
-                placeholder: "輸入災厄道具（支援繁體輸入，Enter 直達正文）...",
+                subtitle: "灰機擴充庫 · 官方直達雷達",
+                placeholder: "輸入災厄道具、Boss、材料...",
                 color: "#ff4500"
             }
         };
@@ -380,8 +379,8 @@
                 frame.classList.remove('viewport-active');
                 frame.src = "";
                 placeholder.style.opacity = '1';
-                placeholderText.innerHTML = `🔥 標題直達協議已就緒：<br><br>左側輸入繁/簡名稱後送出，將直接跳過搜尋，一秒炸開灰機維基正文專頁！`;
-                document.getElementById('statusMessage').innerText = "CALAMITY MODE: 已啟用繁簡互轉直達引擎。";
+                placeholderText.innerHTML = `🔥 灰機直達協議已就緒：<br><br>左側輸入道具後送出，將直接交由灰機核心檢索，一秒直達專頁正片！`;
+                document.getElementById('statusMessage').innerText = "CALAMITY MODE: 官方開放式分流就緒。";
             } else {
                 frame.classList.remove('viewport-active');
                 placeholder.style.opacity = '1';
@@ -397,25 +396,19 @@
         }
 
         function executeDirectSearch() {
-            const originalQuery = document.getElementById('wikiSearchInput').value.trim();
-            if (!originalQuery) return;
+            const query = document.getElementById('wikiSearchInput').value.trim();
+            if (!query) return;
 
             if (currentMode === 'calamity') {
-                // ⚡ 1. 自動隱形變頻：將輸入的繁體字一秒洗成簡體字
-                const scQuery = convertToSC(originalQuery);
-                // ⚡ 2. 封裝成 MediaWiki 標準標題直達路徑（不帶 Special:Search）
-                const formattedQuery = encodeURIComponent(scQuery.replace(/\s+/g, '_'));
-                const targetUrl = `${CONFIG.calamity.base}${formattedQuery}`;
-                
-                document.getElementById('statusMessage').innerText = `LAUNCH: 繁簡轉換成功，正在直擊灰機維基「${scQuery}」正文專頁。`;
+                // ⚡ 灰機維基標準外掛式檢索窗口（完全不帶 Special:Search，100% 繞過 Google 與高級搜尋死胡同）
+                const targetUrl = `https://calamity.huijiwiki.com/index.php?search=${encodeURIComponent(query)}`;
+                document.getElementById('statusMessage').innerText = `LAUNCH: 已交由灰機核心載入「${query}」數據專頁。`;
                 window.open(targetUrl, '_blank');
             } else {
-                // 原版模式維持右側嵌入
-                const cfg = CONFIG[currentMode];
-                const formattedQuery = encodeURIComponent(originalQuery.replace(/\s+/g, '_'));
-                const targetUrl = `${cfg.base}Special:Search?search=${formattedQuery}&variant=zh-tw`;
-                document.getElementById('statusMessage').innerText = `TRANSMITTING: 正在將「${originalQuery}」送往右側觀測鏡...`;
-                teleportToViewport(targetUrl, originalQuery);
+                // ⚡ 原版模式：獨立封裝，強制使用官方 zh-tw 繁體化設定，絕不跑板
+                const targetUrl = `https://terraria.wiki.gg/zh/wiki/Special:Search?search=${encodeURIComponent(query.replace(/\s+/g, '_'))}&variant=zh-tw`;
+                document.getElementById('statusMessage').innerText = `TRANSMITTING: 正在將「${query}」送往右側觀測鏡...`;
+                teleportToViewport(targetUrl, query);
             }
         }
 
@@ -427,13 +420,13 @@
             frame.classList.remove('viewport-active');
             placeholder.style.pointerEvents = 'auto';
             placeholder.style.opacity = '1';
-            placeholderText.innerText = `⚡ 正在傳送「${title}」數據並執行前端繁體化渲染...`;
+            placeholderText.innerText = `⚡ 正在傳送「${title}」數據並執行前端繁體化化渲染...`;
             
             frame.onload = function() {
                 placeholder.style.opacity = '0';
                 placeholder.style.pointerEvents = 'none';
                 frame.classList.add('viewport-active'); 
-                document.getElementById('statusMessage').innerText = `VIEWING: 目前正在瀏覽「${title}」的官方維基鏡像`;
+                document.getElementById('statusMessage').innerText = `VIEWING: 目前正在瀏覽「${title}」的官方繁體維基`;
             };
             frame.src = url;
         }
