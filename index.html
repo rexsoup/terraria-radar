@@ -12,23 +12,20 @@
     <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRlcnJhcmlhIO像素結晶智慧導航站IiwKICAic2hvcnRfbmFtZSI6ICJUZXJyYXJpYSDlsI7om68iLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA5MGExNCIsCiAgInRoZW1lX2NvbG9yIjogIiMwMGU1ZmYiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJkeTF3YVhKbFpYTWdaMmh5YVdkbGN5QnpkR0Z5ZENCemFXNWxPaUJtYjNKdFlXMXpPaUIwYUdWeVpYTWdZMjlzYjNJOklmMXdaR1VpSUR4d2NtOTFjbVFnZEdobGJXVWlJRzE1WDJOdmJHOXlPaU13TURlMWRtWWlJSFpwWlhka2FHOXlPaU13TURlMWRtWWlJRzFwYm1SMWJpSWdabWxzYkhNaUl6QXdOV1ptSWlCamIyeHZjaUlnTXpBZ016QWdNe0FpTURBZ016QWlJSFpwWlhjdUlpaHpaV05vYjI0aUl6QXdOV1ptSWlCNkptMXdaR1VpUGpvPSIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=">
 
     <style>
-        /* ==========================================
-           1. 全域變數與像素美學環境定義
-           ========================================== */
         :root {
             --bg-dark: #090a14;
             --pixel-size: 4px;
-            --color-mana: #00e5ff;       /* 魔力藍 */
-            --color-life: #ff2a6d;       /* 生命紅 */
-            --color-chlorophyte: #00ff66; /* 葉綠素綠 */
-            --color-hallow: #ffbe0b;      /* 神聖金 */
+            --color-mana: #00e5ff;       
+            --color-life: #ff2a6d;       
+            --color-chlorophyte: #00ff66; 
+            --color-hallow: #ffbe0b;      
+            --color-calamity: #ff4500;   /* 災厄橘紅 */
             --card-border-retro: #222533;
             --text-primary: #ffffff;
             --text-secondary: #718096;
             --font-pixel: "Segoe UI", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
         }
 
-        /* 網頁本體：強制全螢幕雙欄版面 */
         body {
             background-color: var(--bg-dark);
             background-image: 
@@ -41,14 +38,13 @@
             padding: 0;
             height: 100vh;
             display: flex;
-            flex-direction: row; /* 改為左右雙欄分割 */
+            flex-direction: row; 
             overflow: hidden;
             position: relative;
             line-height: 1.6;
             letter-spacing: 0.05em;
         }
 
-        /* 背景動態粒子容器 */
         .particle-container {
             position: fixed;
             top: 0;
@@ -64,8 +60,6 @@
             position: absolute;
             width: 6px;
             height: 6px;
-            background: var(--color-mana);
-            box-shadow: 0 0 10px var(--color-mana), 0 0 20px var(--color-mana);
             opacity: 0.6;
             bottom: -20px;
             animation: soulFloat 15s infinite linear;
@@ -78,9 +72,6 @@
             100% { transform: translateY(-110vh) translateX(100px) rotate(360deg); opacity: 0; }
         }
 
-        /* ==========================================
-           2. 左側面板：智慧雷達檢索區（獨立捲動）
-           ========================================== */
         .left-panel {
             width: 45%;
             min-width: 450px;
@@ -95,6 +86,42 @@
             -webkit-backdrop-filter: blur(12px);
         }
 
+        /* 模式切換器排版 */
+        .mode-switcher {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            font-family: var(--font-pixel);
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #5a6578;
+            background: #111424;
+            border: 2px solid #2d3454;
+            cursor: pointer;
+            border-radius: 2px;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active-vanilla {
+            color: #ffffff;
+            background: #0d253f;
+            border-color: var(--color-mana);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+        }
+
+        .mode-btn.active-calamity {
+            color: #ffffff;
+            background: #3f1911;
+            border-color: var(--color-calamity);
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
+        }
+
         .pixel-title {
             font-size: 4rem;
             font-weight: 900;
@@ -104,21 +131,8 @@
             background: linear-gradient(to bottom, #ffffff 20%, var(--color-mana) 90%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            
-            filter: drop-shadow(4px 0px 0px #0c0d1a)
-                    drop-shadow(-4px 0px 0px #0c0d1a)
-                    drop-shadow(0px 4px 0px #0c0d1a)
-                    drop-shadow(0px -4px 0px #0c0d1a)
-                    drop-shadow(4px 4px 0px #0c0d1a)
-                    drop-shadow(-4px -4px 0px #0c0d1a)
-                    drop-shadow(0px 8px 20px rgba(0, 229, 255, 0.4));
-            
-            animation: titlePulse 3s infinite alternate ease-in-out;
-        }
-
-        @keyframes titlePulse {
-            0% { filter: drop-shadow(4px 0px 0px #0c0d1a) drop-shadow(-4px 0px 0px #0c0d1a) drop-shadow(0px 4px 0px #0c0d1a) drop-shadow(0px -4px 0px #0c0d1a) drop-shadow(0px 6px 15px rgba(0, 229, 255, 0.35)); }
-            100% { filter: drop-shadow(4px 0px 0px #0c0d1a) drop-shadow(-4px 0px 0px #0c0d1a) drop-shadow(0px 4px 0px #0c0d1a) drop-shadow(0px -4px 0px #0c0d1a) drop-shadow(0px 12px 30px rgba(0, 229, 255, 0.65)); }
+            filter: drop-shadow(4px 4px 0px #0c0d1a);
+            transition: all 0.3s ease;
         }
 
         .pixel-subtitle {
@@ -130,7 +144,6 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
         }
 
         .pixel-subtitle::after {
@@ -145,16 +158,10 @@
             position: relative;
             background: linear-gradient(135deg, #12162b 0%, #0c0e1a 100__);
             border: 4px solid #ffffff;
-            box-shadow: 0 0 0 4px #1a1d30, 4px 4px 0px 4px rgba(0,0,0,0.5), inset 0 2px 8px rgba(0,0,0,0.6);
+            box-shadow: 0 0 0 4px #1a1d30, 4px 4px 0px 4px rgba(0,0,0,0.5);
             border-radius: 4px;
             margin-bottom: 24px;
-            transition: border-color 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        .search-pixel-box:focus-within {
-            border-color: var(--color-mana);
-            box-shadow: 0 0 0 4px #1a1d30, 0 0 25px rgba(0, 229, 255, 0.5), inset 0 2px 4px rgba(0,0,0,0.4);
-            transform: translateY(-2px);
+            transition: all 0.25s ease;
         }
 
         .search-pixel-input {
@@ -167,12 +174,6 @@
             border: none;
             color: #ffffff;
             outline: none;
-            letter-spacing: 1px;
-        }
-
-        .search-pixel-input::placeholder {
-            color: #4a5568;
-            letter-spacing: 1px;
         }
 
         .game-status-panel {
@@ -184,15 +185,12 @@
             align-items: center;
             gap: 12px;
             letter-spacing: 2px;
-            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
         }
 
         .game-status-panel::before {
             content: "●";
             color: var(--color-chlorophyte);
-            font-size: 0.8rem;
-            text-shadow: 0 0 8px var(--color-chlorophyte);
-            animation: blink 1s infinite alternate cubic-bezier(0.4, 0, 0.6, 1);
+            animation: blink 1s infinite alternate;
         }
 
         @keyframes blink { 0% { opacity: 0.3; } 100% { opacity: 1; } }
@@ -212,15 +210,13 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            border-radius: 2px;
-            transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         .pixel-card:hover {
-            transform: translateY(-4px) translateX(-2px);
+            transform: translateY(-4px);
             border-color: var(--color-chlorophyte);
-            background: linear-gradient(135deg, #1c2347 0%, #11152e 100__);
-            box-shadow: 7px 7px 0px #020305, 0 0 20px rgba(0, 255, 102, 0.25);
+            box-shadow: 7px 7px 0px #020305;
         }
 
         .card-rarity-indicator {
@@ -231,21 +227,13 @@
             height: 12px;
             background: var(--color-mana);
             box-shadow: 0 0 8px var(--color-mana);
-            transition: background 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .pixel-card:hover .card-rarity-indicator {
-            background: var(--color-life);
-            box-shadow: 0 0 8px var(--color-life);
         }
 
         .card-meta-info {
             font-size: 0.75rem;
             font-weight: 700;
-            letter-spacing: 2px;
             color: #5a6578;
             margin-bottom: 10px;
-            text-transform: uppercase;
         }
 
         .card-item-title {
@@ -253,29 +241,14 @@
             font-weight: 800;
             color: #ffffff;
             margin: 0 0 10px 0;
-            letter-spacing: 1px;
-            text-shadow: 2px 2px 0px #05060b, -1px -1px 0px #05060b, 1px -1px 0px #05060b, -1px 1px 0px #05060b;
-            transition: color 0.2s ease, filter 0.2s ease;
-        }
-
-        .pixel-card:hover .card-item-title {
-            background: linear-gradient(to bottom, #ffffff 20%, var(--color-hallow) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(2px 2px 0px #05060b);
         }
 
         .card-item-desc {
             font-size: 0.9rem;
             color: #a0aec0;
-            line-height: 1.6;
             margin: 0;
-            letter-spacing: 0.5px;
         }
 
-        /* ==========================================
-           3. 右側面板：傳送觀測鏡
-           ========================================== */
         .right-panel {
             width: 55%;
             height: 100vh;
@@ -283,8 +256,6 @@
             background: #090a12;
             box-shadow: inset 12px 0 40px rgba(0,0,0,0.7);
             z-index: 5;
-            display: block; 
-            overflow: hidden;
         }
 
         .teleport-placeholder {
@@ -299,22 +270,19 @@
             justify-content: center;
             color: #4a5568;
             font-weight: 700;
-            letter-spacing: 3px;
             z-index: 2;
-            background: linear-gradient(180deg, #0d0f1d 0%, #070810 100__);
-            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none;
+            background: #0d0f1d;
+            transition: opacity 0.5s ease;
         }
 
         .teleport-icon {
             font-size: 4rem;
             color: var(--color-mana);
             margin-bottom: 20px;
-            filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.6));
-            animation: pulseGlow 2s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+            animation: pulseGlow 2s infinite alternate;
         }
 
-        @keyframes pulseGlow { 0% { opacity: 0.3; transform: scale(0.92) rotate(0deg); } 100% { opacity: 1; transform: scale(1.08) rotate(180deg); } }
+        @keyframes pulseGlow { 0% { opacity: 0.3; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
 
         .wiki-viewport {
             position: absolute;
@@ -326,75 +294,18 @@
             background: #ffffff;
             opacity: 0;
             z-index: 1;
-            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: auto !important;
-            -webkit-overflow-scrolling: touch;
+            transition: opacity 0.4s ease;
         }
 
-        .viewport-active {
-            opacity: 1;
-        }
+        .viewport-active { opacity: 1; }
 
         @media (max-width: 768px) {
-            body {
-                flex-direction: column; 
-                height: 100vh;
-                overflow: hidden;
-            }
-            .left-panel {
-                width: 100%;
-                min-width: 100%;
-                height: 50vh;
-                padding: 24px;
-                border-right: none;
-                border-bottom: 4px solid #1a1d30;
-                box-sizing: border-box;
-            }
-            .pixel-title {
-                font-size: 2.8rem;
-                letter-spacing: 8px;
-                text-align: center;
-            }
-            .pixel-subtitle {
-                font-size: 0.9rem;
-                margin-bottom: 24px;
-                justify-content: center;
-            }
-            .pixel-subtitle::after {
-                display: none;
-            }
-            .search-pixel-input {
-                padding: 14px 18px;
-                font-size: 1rem;
-            }
-            .game-status-panel {
-                margin-bottom: 20px;
-                display: flex;
-                justify-content: center;
-            }
-            .right-panel {
-                width: 100%;
-                height: 50vh;
-                position: relative;
-                box-shadow: inset 0 12px 30px rgba(0,0,0,0.7);
-                overflow-y: scroll !important;
-                -webkit-overflow-scrolling: touch;
-            }
-            .wiki-viewport {
-                height: 100%;
-                width: 100%;
-                overflow-y: scroll !important;
-                -webkit-overflow-scrolling: touch;
-            }
-            .teleport-placeholder {
-                padding: 24px;
-                text-align: center;
-                font-size: 0.95rem;
-            }
-            .teleport-icon {
-                font-size: 3rem;
-                margin-bottom: 12px;
-            }
+            body { flex-direction: column; }
+            .left-panel { width: 100%; min-width: 100%; height: 50vh; padding: 24px; border-right: none; border-bottom: 4px solid #1a1d30; }
+            .pixel-title { font-size: 2.8rem; text-align: center; }
+            .pixel-subtitle { font-size: 0.9rem; justify-content: center; }
+            .pixel-subtitle::after { display: none; }
+            .right-panel { width: 100%; height: 50vh; }
         }
     </style>
 </head>
@@ -402,11 +313,18 @@
 
     <div class="particle-container" id="soulParticles"></div>
     <div class="left-panel">
-        <h1 class="pixel-title">Terraria</h1>
-        <div class="pixel-subtitle">官方資料庫 · 即時觀測雷達</div>
+        
+        <!-- ⚡ 雙模切換核心甲板 -->
+        <div class="mode-switcher">
+            <button id="btnVanilla" class="mode-btn active-vanilla" onclick="switchMode('vanilla')">VANILLA 原版模式</button>
+            <button id="btnCalamity" class="mode-btn" onclick="switchMode('calamity')">CALAMITY 災厄模式</button>
+        </div>
+
+        <h1 class="pixel-title" id="mainTitle">Terraria</h1>
+        <div class="pixel-subtitle" id="mainSubtitle">官方資料庫 · 即時觀測雷達</div>
         
         <div class="search-pixel-box">
-            <input type="text" id="wikiSearchInput" class="search-pixel-input" placeholder="請輸入武器、王怪、配方名稱..." oninput="debounceSearch()">
+            <input type="text" id="wikiSearchInput" class="search-pixel-input" placeholder="請輸入原版武器、王怪、配方名稱..." oninput="debounceSearch()">
         </div>
 
         <div class="game-status-panel" id="statusMessage">READY: 請輸入關鍵字以傳送官方數據...</div>
@@ -416,63 +334,58 @@
 
     <div class="right-panel">
         <div class="teleport-placeholder" id="teleportPlaceholder">
-            <div class="teleport-icon">🌀</div>
+            <div class="teleport-icon" id="portalIcon">🌀</div>
             <div id="placeholderText">等待數據傳送中...請在左側點擊條目</div>
         </div>
-        
         <iframe id="wikiFrame" class="wiki-viewport" title="Terraria Wiki Viewport"></iframe>
     </div>
 
     <script>
-        const API_URL = "https://terraria.wiki.gg/zh/api.php";
-        const WIKI_BASE = "https://terraria.wiki.gg/zh/wiki/";
-        const VARIANT = "?variant=zh-tw";
-        
+        // ⚡ 核心資料庫雙模設定
+        const CONFIG = {
+            vanilla: {
+                api: "https://terraria.wiki.gg/zh/api.php",
+                base: "https://terraria.wiki.gg/zh/wiki/",
+                title: "Terraria",
+                subtitle: "官方資料庫 · 即時觀測雷達",
+                placeholder: "請輸入原版武器、王怪、配方名稱...",
+                color: "#00e5ff"
+            },
+            calamity: {
+                api: "https://calamitymod.wiki.gg/zh/api.php",
+                base: "https://calamitymod.wiki.gg/zh/wiki/",
+                title: "Calamity",
+                subtitle: "災厄擴充庫 · 世界線觀測鏡",
+                placeholder: "請輸入災厄 Mod 道具、Boss、材料名稱...",
+                color: "#ff4500"
+            }
+        };
+
+        let currentMode = "vanilla";
         let debounceTimeout;
+        const VARIANT = "?variant=zh-tw"; // ⚡ 強制將北京主站數據流前端編譯為繁體台灣語系
 
-        // ⚡ 升級版黑魔法二：利用 Data URL 動態註冊真正具備 fetch 響應的 Service Worker，強制解鎖 Chrome 安裝權限
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const swCode = `
-                    self.addEventListener('install', (e) => { self.skipWaiting(); });
-                    self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
-                    self.addEventListener('fetch', (e) => {
-                        if (e.request.mode === 'navigate') {
-                            e.respondWith(fetch(e.request).catch(() => new Response("Offline")));
-                        }
-                    });
-                `;
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl, { scope: './' })
-                    .then(() => console.log('[PWA] 核心守護進程已升級，完全解鎖安裝權限'))
-                    .catch(err => console.error('[PWA] 注入失敗:', err));
-            });
-        }
-
-        function initBackgroundParticles() {
-            const container = document.getElementById('soulParticles');
-            const particleCount = 20;
-            const colors = ['#00e5ff', '#ff2a6d', '#00ff66', '#ffbe0b'];
-            for (let i = 0; i < particleCount; i++) { createParticle(container, colors); }
-        }
-
-        function createParticle(container, colors) {
-            const particle = document.createElement('div');
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            const size = Math.floor(Math.random() * 5) + 3;
-            particle.className = 'pixel-soul';
-            particle.style.left = `${Math.random() * 100}vw`;
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.background = randomColor;
-            particle.style.boxShadow = `0 0 10px ${randomColor}, 0 0 20px ${randomColor}`;
-            const duration = Math.random() * 10 + 10;
-            const delay = Math.random() * -20;
-            particle.style.animationDuration = `${duration}s`;
-            particle.style.animationDelay = `${delay}s`;
-            container.appendChild(particle);
-            particle.addEventListener('animationiteration', () => { particle.style.left = `${Math.random() * 100}vw`; });
+        function switchMode(mode) {
+            currentMode = mode;
+            const cfg = CONFIG[mode];
+            
+            // 按鈕樣式切換
+            document.getElementById('btnVanilla').className = `mode-btn ${mode === 'vanilla' ? 'active-vanilla' : ''}`;
+            document.getElementById('btnCalamity').className = `mode-btn ${mode === 'calamity' ? 'active-calamity' : ''}`;
+            
+            // UI 色彩與文字即時質變
+            document.getElementById('mainTitle').innerText = cfg.title;
+            document.getElementById('mainTitle').style.background = `linear-gradient(to bottom, #ffffff 20%, ${cfg.color} 90%)`;
+            document.getElementById('mainTitle').style.webkitBackgroundClip = "text";
+            document.getElementById('mainSubtitle').innerText = cfg.subtitle;
+            document.getElementById('portalIcon').style.color = cfg.color;
+            
+            const input = document.getElementById('wikiSearchInput');
+            input.placeholder = cfg.placeholder;
+            input.value = "";
+            
+            document.getElementById('resultsGrid').innerHTML = '';
+            document.getElementById('statusMessage').innerText = `SWITCH: 已切換至 ${mode === 'vanilla' ? '泰拉原版' : '災厄 Mod'} 資料核心。`;
         }
 
         function debounceSearch() {
@@ -483,20 +396,21 @@
                 document.getElementById('statusMessage').innerText = "READY: 請輸入關鍵字以傳送官方數據...";
                 return;
             }
-            document.getElementById('statusMessage').innerText = "CONNECTING: 正在解鎖 wiki.gg 雲端數據核心...";
+            document.getElementById('statusMessage').innerText = `CONNECTING: 正在檢索 ${currentMode === 'vanilla' ? '原版' : '災厄'} wiki.gg 雲端核心...`;
             debounceTimeout = setTimeout(() => { fetchWikiData(query); }, 300); 
         }
 
         async function fetchWikiData(query) {
+            const cfg = CONFIG[currentMode];
             const params = new URLSearchParams({ action: "opensearch", profile: "engine_autoselect", search: query, limit: "12", format: "json", origin: "*" });
             try {
-                const response = await fetch(`${API_URL}?${params.toString()}`);
-                if (!response.ok) throw new Error("Network response error");
+                const response = await fetch(`${cfg.api}?${params.toString()}`);
+                if (!response.ok) throw new Error("Network error");
                 const data = await response.json();
                 renderResults(data[1] || [], data[3] || []);
             } catch (error) {
                 console.error("API Error:", error);
-                document.getElementById('statusMessage').innerText = "ERROR: 傳送失敗，請檢查網路連線。";
+                document.getElementById('statusMessage').innerText = "ERROR: 數據核心連線超時，請重試。";
             }
         }
 
@@ -504,19 +418,24 @@
             const grid = document.getElementById('resultsGrid');
             const status = document.getElementById('statusMessage');
             grid.innerHTML = ''; 
-            if (titles.length === 0) { status.innerText = "EMPTY: 官方資料庫中未尋獲對應條目。"; return; }
-            status.innerText = `SUCCESS: 已即時解鎖 ${titles.length} 筆數據條目：`;
+            if (titles.length === 0) { status.innerText = "EMPTY: 資料庫中未尋獲對應條目。"; return; }
+            status.innerText = `SUCCESS: 已即時解鎖 ${titles.length} 筆資料條目：`;
+            
+            const cfg = CONFIG[currentMode];
             titles.forEach((title, index) => {
                 const originUrl = links[index];
                 const pageName = originUrl.substring(originUrl.lastIndexOf('/') + 1);
-                const targetUrl = `${WIKI_BASE}${pageName}${VARIANT}`;
+                
+                // ⚡ 關鍵黑魔法：不管簡體子站有沒有更新，強行在末端注入繁體參數，逼迫 Wiki 渲染 zh-tw 鏡像
+                const targetUrl = `${cfg.base}${pageName}${VARIANT}`;
+                
                 const card = document.createElement('div');
                 card.className = 'pixel-card';
                 card.innerHTML = `
-                    <div class="card-rarity-indicator"></div>
-                    <div class="card-meta-info">DATABASE ENTRY // 0${index + 1}</div>
+                    <div class="card-rarity-indicator" style="background: ${cfg.color}; box-shadow: 0 0 8px ${cfg.color};"></div>
+                    <div class="card-meta-info">${currentMode.toUpperCase()} ENTRY // 0${index + 1}</div>
                     <h3 class="card-item-title">${title}</h3>
-                    <p class="card-item-desc">點擊將內容就地傳送至右側觀測鏡，解析「${title}」的最高階合成表與機制細節。</p>
+                    <p class="card-item-desc">點擊將內容就地傳送至右側觀測鏡，解析「${title}」的數值與繁體正字機制。</p>
                 `;
                 card.onclick = () => teleportToViewport(targetUrl, title);
                 grid.appendChild(card);
@@ -527,25 +446,43 @@
             const frame = document.getElementById('wikiFrame');
             const placeholder = document.getElementById('teleportPlaceholder');
             const placeholderText = document.getElementById('placeholderText');
-            const rightPanel = document.querySelector('.right-panel');
             frame.classList.remove('viewport-active');
             placeholder.style.pointerEvents = 'auto';
             placeholder.style.opacity = '1';
-            placeholderText.innerText = `⚡ 正在同步「${title}」的世界線數據...`;
-            frame.onload = null;
+            placeholderText.innerText = `⚡ 正在同步「${title}」的世界線數據並強制繁體化...`;
+            
             frame.onload = function() {
                 placeholder.style.opacity = '0';
                 placeholder.style.pointerEvents = 'none';
                 frame.classList.add('viewport-active'); 
-                document.getElementById('statusMessage').innerText = `VIEWING: 目前正在瀏覽「${title}」的官方維基頁面`;
+                document.getElementById('statusMessage').innerText = `VIEWING: 目前正在瀏覽「${title}」的官方維基鏡像`;
             };
             frame.src = url;
             if (window.innerWidth <= 768) {
-                setTimeout(() => { rightPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+                setTimeout(() => { document.querySelector('.right-panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
             }
         }
 
-        window.onload = initBackgroundParticles;
+        function initBackgroundParticles() {
+            const container = document.getElementById('soulParticles');
+            const colors = ['#00e5ff', '#ff2a6d', '#00ff66', '#ff4500'];
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                const size = Math.floor(Math.random() * 5) + 3;
+                particle.className = 'pixel-soul';
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.background = randomColor;
+                particle.style.boxShadow = `0 0 10px ${randomColor}`;
+                particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                particle.style.animationDelay = `${Math.random() * -20}s`;
+                container.appendChild(particle);
+            }
+        }
+
+        window.onload = function() { initBackgroundParticles(); };
     </script>
 </body>
 </html>
