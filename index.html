@@ -19,7 +19,7 @@
             --color-life: #ff2a6d;       
             --color-chlorophyte: #00ff66; 
             --color-hallow: #ffbe0b;      
-            --color-calamity: #ff4500;   /* 災厄橘紅 */
+            --color-calamity: #ff4500;   
             --card-border-retro: #222533;
             --text-primary: #ffffff;
             --text-secondary: #718096;
@@ -86,7 +86,6 @@
             -webkit-backdrop-filter: blur(12px);
         }
 
-        /* 模式切換器排版 */
         .mode-switcher {
             display: flex;
             gap: 10px;
@@ -132,7 +131,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(4px 4px 0px #0c0d1a);
-            transition: all 0.3s ease;
         }
 
         .pixel-subtitle {
@@ -154,26 +152,53 @@
             box-shadow: 0 0 10px var(--color-chlorophyte);
         }
 
+        /* 調整搜尋區域排版以容納傳送按鈕 */
+        .search-control-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
         .search-pixel-box {
+            flex-grow: 1;
             position: relative;
             background: linear-gradient(135deg, #12162b 0%, #0c0e1a 100__);
             border: 4px solid #ffffff;
-            box-shadow: 0 0 0 4px #1a1d30, 4px 4px 0px 4px rgba(0,0,0,0.5);
+            box-shadow: 0 0 0 4px #1a1d30;
             border-radius: 4px;
-            margin-bottom: 24px;
             transition: all 0.25s ease;
         }
 
         .search-pixel-input {
             width: 100%;
             box-sizing: border-box;
-            padding: 18px 24px;
+            padding: 16px 20px;
             font-size: 1.15rem;
             font-family: var(--font-pixel);
             background: transparent;
             border: none;
             color: #ffffff;
             outline: none;
+        }
+
+        .teleport-action-btn {
+            padding: 0 24px;
+            font-family: var(--font-pixel);
+            font-weight: 900;
+            font-size: 1.1rem;
+            background: #111424;
+            color: var(--color-mana);
+            border: 4px solid var(--color-mana);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .teleport-action-btn:hover {
+            background: var(--color-mana);
+            color: #000000;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
         }
 
         .game-status-panel {
@@ -225,8 +250,6 @@
             right: 18px;
             width: 12px;
             height: 12px;
-            background: var(--color-mana);
-            box-shadow: 0 0 8px var(--color-mana);
         }
 
         .card-meta-info {
@@ -305,6 +328,8 @@
             .pixel-title { font-size: 2.8rem; text-align: center; }
             .pixel-subtitle { font-size: 0.9rem; justify-content: center; }
             .pixel-subtitle::after { display: none; }
+            .search-control-group { flex-direction: column; gap: 8px; margin-bottom: 16px; }
+            .teleport-action-btn { padding: 12px; font-size: 1rem; }
             .right-panel { width: 100%; height: 50vh; }
         }
     </style>
@@ -314,7 +339,6 @@
     <div class="particle-container" id="soulParticles"></div>
     <div class="left-panel">
         
-        <!-- ⚡ 雙模切換核心甲板 -->
         <div class="mode-switcher">
             <button id="btnVanilla" class="mode-btn active-vanilla" onclick="switchMode('vanilla')">VANILLA 原版模式</button>
             <button id="btnCalamity" class="mode-btn" onclick="switchMode('calamity')">CALAMITY 災厄模式</button>
@@ -323,11 +347,14 @@
         <h1 class="pixel-title" id="mainTitle">Terraria</h1>
         <div class="pixel-subtitle" id="mainSubtitle">官方資料庫 · 即時觀測雷達</div>
         
-        <div class="search-pixel-box">
-            <input type="text" id="wikiSearchInput" class="search-pixel-input" placeholder="請輸入原版武器、王怪、配方名稱..." oninput="debounceSearch()">
+        <div class="search-control-group">
+            <div class="search-pixel-box" id="searchBoxOuter">
+                <input type="text" id="wikiSearchInput" class="search-pixel-input" placeholder="請輸入原版武器、王怪、配方名稱..." onkeydown="handleKeyDown(event)">
+            </div>
+            <button id="btnAction" class="teleport-action-btn" onclick="executeDirectSearch()">傳送觀測</button>
         </div>
 
-        <div class="game-status-panel" id="statusMessage">READY: 請輸入關鍵字以傳送官方數據...</div>
+        <div class="game-status-panel" id="statusMessage">READY: 輸入關鍵字後按下 Enter 或傳送觀測...</div>
 
         <div class="pixel-grid" id="resultsGrid"></div>
     </div>
@@ -335,13 +362,12 @@
     <div class="right-panel">
         <div class="teleport-placeholder" id="teleportPlaceholder">
             <div class="teleport-icon" id="portalIcon">🌀</div>
-            <div id="placeholderText">等待數據傳送中...請在左側點擊條目</div>
+            <div id="placeholderText">等待數據傳送中...請在左側輸入並點擊傳送</div>
         </div>
         <iframe id="wikiFrame" class="wiki-viewport" title="Terraria Wiki Viewport"></iframe>
     </div>
 
     <script>
-        // ⚡ 核心資料庫雙模設定
         const CONFIG = {
             vanilla: {
                 api: "https://terraria.wiki.gg/zh/api.php",
@@ -352,90 +378,107 @@
                 color: "#00e5ff"
             },
             calamity: {
-                api: "https://calamitymod.wiki.gg/zh/api.php",
                 base: "https://calamitymod.wiki.gg/zh/wiki/",
                 title: "Calamity",
                 subtitle: "災厄擴充庫 · 世界線觀測鏡",
-                placeholder: "請輸入災厄 Mod 道具、Boss、材料名稱...",
+                placeholder: "輸入災厄道具名稱 (直接 Enter 傳送)...",
                 color: "#ff4500"
             }
         };
 
         let currentMode = "vanilla";
-        let debounceTimeout;
-        const VARIANT = "?variant=zh-tw"; // ⚡ 強制將北京主站數據流前端編譯為繁體台灣語系
+        const VARIANT = "?variant=zh-tw"; 
 
         function switchMode(mode) {
             currentMode = mode;
             const cfg = CONFIG[mode];
             
-            // 按鈕樣式切換
             document.getElementById('btnVanilla').className = `mode-btn ${mode === 'vanilla' ? 'active-vanilla' : ''}`;
             document.getElementById('btnCalamity').className = `mode-btn ${mode === 'calamity' ? 'active-calamity' : ''}`;
             
-            // UI 色彩與文字即時質變
             document.getElementById('mainTitle').innerText = cfg.title;
             document.getElementById('mainTitle').style.background = `linear-gradient(to bottom, #ffffff 20%, ${cfg.color} 90%)`;
             document.getElementById('mainTitle').style.webkitBackgroundClip = "text";
             document.getElementById('mainSubtitle').innerText = cfg.subtitle;
             document.getElementById('portalIcon').style.color = cfg.color;
             
+            const searchBoxOuter = document.getElementById('searchBoxOuter');
+            searchBoxOuter.style.borderColor = cfg.color;
+            
+            const btnAction = document.getElementById('btnAction');
+            btnAction.style.borderColor = cfg.color;
+            btnAction.style.color = cfg.color;
+            
             const input = document.getElementById('wikiSearchInput');
             input.placeholder = cfg.placeholder;
             input.value = "";
             
             document.getElementById('resultsGrid').innerHTML = '';
-            document.getElementById('statusMessage').innerText = `SWITCH: 已切換至 ${mode === 'vanilla' ? '泰拉原版' : '災厄 Mod'} 資料核心。`;
-        }
-
-        function debounceSearch() {
-            clearTimeout(debounceTimeout);
-            const query = document.getElementById('wikiSearchInput').value.trim();
-            if (!query) {
-                document.getElementById('resultsGrid').innerHTML = '';
-                document.getElementById('statusMessage').innerText = "READY: 請輸入關鍵字以傳送官方數據...";
-                return;
-            }
-            document.getElementById('statusMessage').innerText = `CONNECTING: 正在檢索 ${currentMode === 'vanilla' ? '原版' : '災厄'} wiki.gg 雲端核心...`;
-            debounceTimeout = setTimeout(() => { fetchWikiData(query); }, 300); 
-        }
-
-        async function fetchWikiData(query) {
-            const cfg = CONFIG[currentMode];
-            const params = new URLSearchParams({ action: "opensearch", profile: "engine_autoselect", search: query, limit: "12", format: "json", origin: "*" });
-            try {
-                const response = await fetch(`${cfg.api}?${params.toString()}`);
-                if (!response.ok) throw new Error("Network error");
-                const data = await response.json();
-                renderResults(data[1] || [], data[3] || []);
-            } catch (error) {
-                console.error("API Error:", error);
-                document.getElementById('statusMessage').innerText = "ERROR: 數據核心連線超時，請重試。";
-            }
-        }
-
-        function renderResults(titles, links) {
-            const grid = document.getElementById('resultsGrid');
-            const status = document.getElementById('statusMessage');
-            grid.innerHTML = ''; 
-            if (titles.length === 0) { status.innerText = "EMPTY: 資料庫中未尋獲對應條目。"; return; }
-            status.innerText = `SUCCESS: 已即時解鎖 ${titles.length} 筆資料條目：`;
             
+            if (mode === 'calamity') {
+                document.getElementById('statusMessage').innerText = "CALAMITY MODE: 避開跨網域限制，請直接打字並點擊「傳送觀測」直擊資料庫。";
+            } else {
+                document.getElementById('statusMessage').innerText = "READY: 請輸入關鍵字以傳送官方數據...";
+            }
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter') {
+                executeDirectSearch();
+            }
+        }
+
+        // ⚡ 繞過 CORS 核心：直接生成特殊搜尋網址，完美相容原版與災厄
+        function executeDirectSearch() {
+            const query = document.getElementById('wikiSearchInput').value.trim();
+            if (!query) return;
+
             const cfg = CONFIG[currentMode];
+            document.getElementById('statusMessage').innerText = `CONNECTING: 正在直導 ${currentMode === 'vanilla' ? '原版' : '災厄'} Wiki 智慧引擎...`;
+            
+            // 將空格替換為維基專用底線並進行編碼
+            const formattedQuery = encodeURIComponent(query.replace(/\s+/g, '_'));
+            
+            // 使用 Special:Search 搜尋直達協議，若名稱百分之百精準會直接進條目；若不精準則呈現搜尋結果清單
+            const targetUrl = `${cfg.base}Special:Search?search=${formattedQuery}${VARIANT.replace('?', '&')}`;
+            
+            teleportToViewport(targetUrl, query);
+            
+            // 如果是原版，順便嘗試在左側撈取快速清單
+            if (currentMode === 'vanilla') {
+                fetchVanillaListData(query);
+            }
+        }
+
+        // 僅供原版使用的快速下拉清單撈取
+        async function fetchVanillaListData(query) {
+            const params = new URLSearchParams({ action: "opensearch", profile: "engine_autoselect", search: query, limit: "5", format: "json", origin: "*" });
+            try {
+                const response = await fetch(`${CONFIG.vanilla.api}?${params.toString()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    renderVanillaResults(data[1] || [], data[3] || []);
+                }
+            } catch (e) {
+                // 原版若失敗不影響右側觀測鏡運作
+            }
+        }
+
+        function renderVanillaResults(titles, links) {
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = '';
             titles.forEach((title, index) => {
                 const originUrl = links[index];
                 const pageName = originUrl.substring(originUrl.lastIndexOf('/') + 1);
-                
-                // ⚡ 關鍵黑魔法：不管簡體子站有沒有更新，強行在末端注入繁體參數，逼迫 Wiki 渲染 zh-tw 鏡像
-                const targetUrl = `${cfg.base}${pageName}${VARIANT}`;
+                const targetUrl = `${CONFIG.vanilla.base}${pageName}${VARIANT}`;
                 
                 const card = document.createElement('div');
                 card.className = 'pixel-card';
                 card.innerHTML = `
-                    <div class="card-rarity-indicator" style="background: ${cfg.color}; box-shadow: 0 0 8px ${cfg.color};"></div>
-                    <div class="card-meta-info">${currentMode.toUpperCase()} ENTRY // 0${index + 1}</div>
+                    <div class="card-rarity-indicator" style="background: var(--color-mana); box-shadow: 0 0 8px var(--color-mana);"></div>
+                    <div class="card-meta-info">VANILLA ENTRY // 0${index + 1}</div>
                     <h3 class="card-item-title">${title}</h3>
-                    <p class="card-item-desc">點擊將內容就地傳送至右側觀測鏡，解析「${title}」的數值與繁體正字機制。</p>
+                    <p class="card-item-desc">點擊就地鎖定「${title}」的詳細合成面板。</p>
                 `;
                 card.onclick = () => teleportToViewport(targetUrl, title);
                 grid.appendChild(card);
