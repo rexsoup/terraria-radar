@@ -299,9 +299,9 @@
         <div class="game-status-panel" id="statusMessage">READY: 輸入關鍵字後按下 Enter 或點擊傳送...</div>
 
         <div class="tips-box">
-            <p style="margin-top:0; color:#fff; font-weight:800;">💡 灰機維基相容協議：</p>
-            1. **原版模式**：完全支援內嵌，搜尋結果直接在右側內嵌觀測鏡顯現。<br><br>
-            2. **灰機災厄模式**：由於北京灰機維基有硬性反內嵌保護，輸入名稱送出後，系統將自動為您**彈出獨立的灰機專屬視窗**，完美解決任何網域衝突與超時錯誤。
+            <p style="margin-top:0; color:#fff; font-weight:800;">💡 灰機維基便捷指南：</p>
+            1. **原版模式**：完美支援雙欄內嵌，搜尋結果直接在右側觀測鏡顯現。<br><br>
+            2. **灰機災厄模式**：由於灰機維基有防內嵌保護，輸入名稱送出後，系統將自動為您**彈出獨立的灰機專屬搜尋網頁**，100% 避開錯誤，給您最完整的中文數據。
         </div>
     </div>
 
@@ -313,7 +313,7 @@
         <iframe id="wikiFrame" class="wiki-viewport" title="Terraria Wiki Viewport"></iframe>
     </div>
 
-    <script>
+    <script {nonce}>
         const CONFIG = {
             vanilla: {
                 base: "https://terraria.wiki.gg/zh/wiki/",
@@ -323,7 +323,6 @@
                 color: "#00e5ff"
             },
             calamity: {
-                // ⚡ 完美精準對標北京灰機維基
                 base: "https://calamity.huijiwiki.com/wiki/",
                 title: "Calamity",
                 subtitle: "灰機擴充庫 · 獨立觀測鏡",
@@ -365,8 +364,8 @@
                 frame.classList.remove('viewport-active');
                 frame.src = "";
                 placeholder.style.opacity = '1';
-                placeholderText.innerHTML = `🔥 灰機維基防線解鎖：<br><br>左側輸入並送出後，將自動開啟獨立視窗，直擊灰機維基數據核心！`;
-                document.getElementById('statusMessage').innerText = "CALAMITY MODE: 已切換至第三方灰機維基物理對導模式。";
+                placeholderText.innerHTML = `🔥 灰機維基便捷分流：<br><br>左側輸入並送出後，將自動開啟新視窗跳轉至灰機維基數據核心！`;
+                document.getElementById('statusMessage').innerText = "CALAMITY MODE: 已準備好對接灰機維基獨立搜尋鏈接。";
             } else {
                 frame.classList.remove('viewport-active');
                 placeholder.style.opacity = '1';
@@ -389,13 +388,12 @@
             const formattedQuery = encodeURIComponent(query.replace(/\s+/g, '_'));
             
             if (currentMode === 'calamity') {
-                // ⚡ 灰機維基專用搜尋路徑格式
+                // ⚡ 直接生成灰機維基專用的標準搜尋跳轉連結，以最直覺的新分頁打開
                 const targetUrl = `${cfg.base}Special:Search?search=${formattedQuery}`;
-                document.getElementById('statusMessage').innerText = `POPUP: 已成功在新視窗對接灰機維基「${query}」數據。`;
-                // 開啟乾淨的獨立子視窗（100% 避開 iframe 限制）
-                window.open(targetUrl, 'CalamityHuijiWindow', 'width=1100,height=900,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes');
+                document.getElementById('statusMessage').innerText = `LAUNCH: 已成功為您開啟灰機維基「${query}」的獨立搜尋分頁。`;
+                window.open(targetUrl, '_blank');
             } else {
-                // 原版模式維持原樣
+                // 原版模式維持右側嵌入
                 const targetUrl = `${cfg.base}Special:Search?search=${formattedQuery}&variant=zh-tw`;
                 document.getElementById('statusMessage').innerText = `TRANSMITTING: 正在將「${query}」送往右側觀測鏡...`;
                 teleportToViewport(targetUrl, query);
