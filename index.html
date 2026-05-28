@@ -299,9 +299,9 @@
         <div class="game-status-panel" id="statusMessage">READY: 輸入關鍵字後按下 Enter 或點擊傳送...</div>
 
         <div class="tips-box">
-            <p style="margin-top:0; color:#fff; font-weight:800;">💡 灰機維基便捷指南：</p>
-            1. **原版模式**：支援雙欄內嵌，搜尋結果直接在右側觀測鏡顯現。<br><br>
-            2. **灰機災厄模式**：採用 **Google 全量站內雷達**。輸入送出後，一秒幫你找出灰機維基內最精準的道具正文分頁，100% 避開「高級搜尋」權限錯誤！
+            <p style="margin-top:0; color:#fff; font-weight:800;">💡 灰機極致直達指南：</p>
+            1. **原版模式**：完美雙欄內嵌，直接在右側觀測鏡顯現。<br><br>
+            2. **灰機災厄模式**：內建**「繁轉簡直達引擎」**。不論你打繁體字還是簡體字，送出後會直接跳過所有搜尋結果頁與高級搜尋阻擋，**一秒直接炸開該道具的灰機維基正文頁面**。
         </div>
     </div>
 
@@ -314,6 +314,22 @@
     </div>
 
     <script {nonce}>
+        // ⚡ 內建極輕量繁轉簡字型對照表（精準覆蓋 Terraria 與災厄常見字詞，確保直達率）
+        const TC_TO_SC = {
+            '犽': '犽', '絨': '绒', '星': '星', '流': '流', '龍': '龙', '劍': '剑', '聖': '圣', '啟': '启', '示': '示', '錄': '录',
+            '神': '神', '吞': '吞', '噬': '噬', '者': '者', '災': '灾', '厄': '厄', '織': '织', '網': '网', '冥': '冥', '臣': '臣',
+            '巨': '巨', '浪': '浪', '硫': '硫', '磺': '磺', '海': '海', '淵': '渊', '核': '核', '彈': '弹', '金': '金', '屬': '属',
+            '精': '精', '煉': '炼', '錠': '锭', '礦': '矿', '斬': '斩', '魔': '魔', '刀': '刀', '杖': '杖', '弓': '弓', '槍': '枪',
+            '彈': '弹', '藥': '药', '裝': '装', '甲': '甲', '飾': '饰', '品': '品', '魂': '魂', '精': '精', '華魂': '华魂', '天': '天',
+            '體': '体', '璀': '璀', '璨': '璨', '輝': '辉', '煌': '煌', '褻': '亵', '瀆': '渎', '天': '天', '使': '使', '惡': '恶',
+            '魔': '魔', '遠': '远', '古': '古', '遺': '遗', '物': '物', '不': '不', '淨': '净', '蠕': '蠕', '蟲': '虫', '眼': '眼',
+            '球': '球', '雙': '双', '子': '子', '鋼': '钢', '鐵': '铁', '毀': '毁', '滅': '灭', '精靈': '精灵', '幻': '幻', '影': '影'
+        };
+
+        function convertToSC(text) {
+            return text.split('').map(char => TC_TO_SC[char] || char).join('');
+        }
+
         const CONFIG = {
             vanilla: {
                 base: "https://terraria.wiki.gg/zh/wiki/",
@@ -323,9 +339,10 @@
                 color: "#00e5ff"
             },
             calamity: {
+                base: "https://calamity.huijiwiki.com/wiki/",
                 title: "Calamity",
-                subtitle: "灰機擴充庫 · 全量物理雷達",
-                placeholder: "輸入灰機災厄道具（支援繁簡、Boss、武器）...",
+                subtitle: "灰機擴充庫 · 標題直達雷達",
+                placeholder: "輸入災厄道具（支援繁體輸入，Enter 直達正文）...",
                 color: "#ff4500"
             }
         };
@@ -363,8 +380,8 @@
                 frame.classList.remove('viewport-active');
                 frame.src = "";
                 placeholder.style.opacity = '1';
-                placeholderText.innerHTML = `🔥 站內全量搜尋解鎖：<br><br>左側輸入並送出後，將直接調用精準雷達，秒開灰機維基內的正文頁面！`;
-                document.getElementById('statusMessage').innerText = "CALAMITY MODE: 已啟用 Google 全量分流定位。";
+                placeholderText.innerHTML = `🔥 標題直達協議已就緒：<br><br>左側輸入繁/簡名稱後送出，將直接跳過搜尋，一秒炸開灰機維基正文專頁！`;
+                document.getElementById('statusMessage').innerText = "CALAMITY MODE: 已啟用繁簡互轉直達引擎。";
             } else {
                 frame.classList.remove('viewport-active');
                 placeholder.style.opacity = '1';
@@ -380,21 +397,25 @@
         }
 
         function executeDirectSearch() {
-            const query = document.getElementById('wikiSearchInput').value.trim();
-            if (!query) return;
+            const originalQuery = document.getElementById('wikiSearchInput').value.trim();
+            if (!originalQuery) return;
 
             if (currentMode === 'calamity') {
-                // ⚡ 終極物理外掛：打包成 site 站內精準檢索
-                const targetUrl = `https://www.google.com/search?q=site:calamity.huijiwiki.com+${encodeURIComponent(query)}`;
-                document.getElementById('statusMessage').innerText = `LAUNCH: 已成功為您調用全量搜尋，直擊灰機維基「${query}」專頁。`;
+                // ⚡ 1. 自動隱形變頻：將輸入的繁體字一秒洗成簡體字
+                const scQuery = convertToSC(originalQuery);
+                // ⚡ 2. 封裝成 MediaWiki 標準標題直達路徑（不帶 Special:Search）
+                const formattedQuery = encodeURIComponent(scQuery.replace(/\s+/g, '_'));
+                const targetUrl = `${CONFIG.calamity.base}${formattedQuery}`;
+                
+                document.getElementById('statusMessage').innerText = `LAUNCH: 繁簡轉換成功，正在直擊灰機維基「${scQuery}」正文專頁。`;
                 window.open(targetUrl, '_blank');
             } else {
                 // 原版模式維持右側嵌入
                 const cfg = CONFIG[currentMode];
-                const formattedQuery = encodeURIComponent(query.replace(/\s+/g, '_'));
+                const formattedQuery = encodeURIComponent(originalQuery.replace(/\s+/g, '_'));
                 const targetUrl = `${cfg.base}Special:Search?search=${formattedQuery}&variant=zh-tw`;
-                document.getElementById('statusMessage').innerText = `TRANSMITTING: 正在將「${query}」送往右側觀測鏡...`;
-                teleportToViewport(targetUrl, query);
+                document.getElementById('statusMessage').innerText = `TRANSMITTING: 正在將「${originalQuery}」送往右側觀測鏡...`;
+                teleportToViewport(targetUrl, originalQuery);
             }
         }
 
