@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Terraria 導航站">
 
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRlcnJhcmlhIO像素結晶智慧導航站IiwKICAic2hvcnRfbmFtZSI6ICJUZXJyYXJpYSDlsI7om68iLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA5MGExNCIsCiAgInRoZW1lX2NvbG9yIjogIiMwMGU1ZmYiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJkeTF3YVhKbFpYTWdaMmh5YVdkbGN5QnpkR0Z5ZENCemFXNWxPaUJtYjNKdFlXMXpPaUIwYUdWeVpYTWdZMjlzYjNJOkltMXdaR1VpSUR4d2NtOTFjbVFnZEdobGJXVWlJRzE1WDJOdmJHOXlPaU13TURlMWRtWWlJSFpwWlhka2FHOXlPaU13TURlMWRtWWlJRzFwYm1SMWJpSWdabWxzYkhNaUl6QXdOV1ptSWlCamIyeHZjaUlnTXpBZ016QWdNe0FpTURBZ016QWlJSFpwWlhjdUlpaHpaV05vYjI0aUl6QXdOV1ptSWlCNkptMXdaR1VpUGpvPSIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=">
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRlcnJhcmlhIO像素結晶智慧導航站IiwKICAic2hvcnRfbmFtZSI6ICJUZXJyYXJpYSDlsI7om68iLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA5MGExNCIsCiAgInRoZW1lX2NvbG9yIjogIiMwMGU1ZmYiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJkeTF3YVhKbFpYTWdaMmh5YVdkbGN5QnpkR0Z5ZENCemFXNWxPaUJtYjNKdFlXMXpPaUIwYUdWeVpYTWdZMjlzYjNJOklmMXdaR1VpSUR4d2NtOTFjbVFnZEdobGJXVWlJRzE1WDJOdmJHOXlPaU13TURlMWRtWWlJSFpwWlhka2FHOXlPaU13TURlMWRtWWlJRzFwYm1SMWJpSWdabWxzYkhNaUl6QXdOV1ptSWlCamIyeHZjaUlnTXpBZ016QWdNe0FpTURBZ016QWlJSFpwWlhjdUlpaHpaV05vYjI0aUl6QXdOV1ptSWlCNkptMXdaR1VpUGpvPSIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=">
 
     <style>
         /* ==========================================
@@ -430,15 +430,23 @@
         
         let debounceTimeout;
 
-        // ⚡ 黑魔法二：利用 Data URL 動態註冊一個空 Service Worker 滿足 Chrome 後台安全協議
+        // ⚡ 升級版黑魔法二：利用 Data URL 動態註冊真正具備 fetch 響應的 Service Worker，強制解鎖 Chrome 安裝權限
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                const swCode = "self.addEventListener('fetch', function(e) { /* 空攔截以觸發 PWA 安裝 */ });";
+                const swCode = `
+                    self.addEventListener('install', (e) => { self.skipWaiting(); });
+                    self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
+                    self.addEventListener('fetch', (e) => {
+                        if (e.request.mode === 'navigate') {
+                            e.respondWith(fetch(e.request).catch(() => new Response("Offline")));
+                        }
+                    });
+                `;
                 const blob = new Blob([swCode], { type: 'application/javascript' });
                 const swUrl = URL.createObjectURL(blob);
                 navigator.serviceWorker.register(swUrl, { scope: './' })
-                    .then(() => console.log('[PWA] 智慧代碼守護核心已注入成功'))
-                    .catch(err => console.error('[PWA] 核心注入失敗:', err));
+                    .then(() => console.log('[PWA] 核心守護進程已升級，完全解鎖安裝權限'))
+                    .catch(err => console.error('[PWA] 注入失敗:', err));
             });
         }
 
