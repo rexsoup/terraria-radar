@@ -8,6 +8,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Terraria 導航站">
+
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRlcnJhcmlhIO像素結晶智慧導航站IiwKICAic2hvcnRfbmFtZSI6ICJUZXJyYXJpYSDlsI7om68iLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA5MGExNCIsCiAgInRoZW1lX2NvbG9yIjogIiMwMGU1ZmYiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJkeTF3YVhKbFpYTWdaMmh5YVdkbGN5QnpkR0Z5ZENCemFXNWxPaUJtYjNKdFlXMXpPaUIwYUdWeVpYTWdZMjlzYjNJOkltMXdaR1VpSUR4d2NtOTFjbVFnZEdobGJXVWlJRzE1WDJOdmJHOXlPaU13TURlMWRtWWlJSFpwWlhka2FHOXlPaU13TURlMWRtWWlJRzFwYm1SMWJpSWdabWxzYkhNaUl6QXdOV1ptSWlCamIyeHZjaUlnTXpBZ016QWdNe0FpTURBZ016QWlJSFpwWlhjdUlpaHpaV05vYjI0aUl6QXdOV1ptSWlCNkptMXdaR1VpUGpvPSIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=">
+
     <style>
         /* ==========================================
            1. 全域變數與像素美學環境定義
@@ -196,11 +199,10 @@
 
         .pixel-grid {
             display: grid;
-            grid-template-columns: 1fr; /* 單欄卡片堆疊，更適合側邊欄 */
+            grid-template-columns: 1fr;
             gap: 20px;
         }
 
-        /* 移除點擊卡片跳轉跳出頁面的預設行為，改為觸發內嵌機制 */
         .pixel-card {
             background: linear-gradient(135deg, #151a36 0%, #0e1124 100__);
             border: 3px solid #2d3454;
@@ -272,7 +274,7 @@
         }
 
         /* ==========================================
-           3. 右側面板：傳送觀測鏡（修正無法捲動與填滿問題）
+           3. 右側面板：傳送觀測鏡
            ========================================== */
         .right-panel {
             width: 55%;
@@ -285,7 +287,6 @@
             overflow: hidden;
         }
 
-        /* 預設沒資料時的傳送陣提示 */
         .teleport-placeholder {
             position: absolute;
             top: 0;
@@ -300,9 +301,9 @@
             font-weight: 700;
             letter-spacing: 3px;
             z-index: 2;
-            background: linear-gradient(180deg, #0d0f1d 0%, #070810 100__); /* 加上背景色，防止下方白底透出來 */
+            background: linear-gradient(180deg, #0d0f1d 0%, #070810 100__);
             transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none; /* 修正：允許滑鼠事件穿透，避免阻擋點擊 */
+            pointer-events: none;
         }
 
         .teleport-icon {
@@ -315,7 +316,6 @@
 
         @keyframes pulseGlow { 0% { opacity: 0.3; transform: scale(0.92) rotate(0deg); } 100% { opacity: 1; transform: scale(1.08) rotate(180deg); } }
 
-        /* 核心內嵌鏡頭視窗：徹底解放捲動軸 */
         .wiki-viewport {
             position: absolute;
             top: 0;
@@ -331,14 +331,10 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 當載入完成後啟動顯示 */
         .viewport-active {
             opacity: 1;
         }
 
-        /* =========================================================
-           👉 手機端彈出式面板與應變斷點樣式
-           ========================================================= */
         @media (max-width: 768px) {
             body {
                 flex-direction: column; 
@@ -434,104 +430,78 @@
         
         let debounceTimeout;
 
-        // 1. 初始化浮游之魂背景粒子
+        // ⚡ 黑魔法二：利用 Data URL 動態註冊一個空 Service Worker 滿足 Chrome 後台安全協議
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = "self.addEventListener('fetch', function(e) { /* 空攔截以觸發 PWA 安裝 */ });";
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl, { scope: './' })
+                    .then(() => console.log('[PWA] 智慧代碼守護核心已注入成功'))
+                    .catch(err => console.error('[PWA] 核心注入失敗:', err));
+            });
+        }
+
         function initBackgroundParticles() {
             const container = document.getElementById('soulParticles');
             const particleCount = 20;
             const colors = ['#00e5ff', '#ff2a6d', '#00ff66', '#ffbe0b'];
-
-            for (let i = 0; i < particleCount; i++) {
-                createParticle(container, colors);
-            }
+            for (let i = 0; i < particleCount; i++) { createParticle(container, colors); }
         }
 
         function createParticle(container, colors) {
             const particle = document.createElement('div');
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
             const size = Math.floor(Math.random() * 5) + 3;
-            
             particle.className = 'pixel-soul';
             particle.style.left = `${Math.random() * 100}vw`;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
             particle.style.background = randomColor;
             particle.style.boxShadow = `0 0 10px ${randomColor}, 0 0 20px ${randomColor}`;
-            
             const duration = Math.random() * 10 + 10;
             const delay = Math.random() * -20;
-            
             particle.style.animationDuration = `${duration}s`;
             particle.style.animationDelay = `${delay}s`;
-
             container.appendChild(particle);
-
-            particle.addEventListener('animationiteration', () => {
-                particle.style.left = `${Math.random() * 100}vw`;
-            });
+            particle.addEventListener('animationiteration', () => { particle.style.left = `${Math.random() * 100}vw`; });
         }
 
-        // 2. 智慧防抖動檢索
         function debounceSearch() {
             clearTimeout(debounceTimeout);
             const query = document.getElementById('wikiSearchInput').value.trim();
-            
             if (!query) {
                 document.getElementById('resultsGrid').innerHTML = '';
                 document.getElementById('statusMessage').innerText = "READY: 請輸入關鍵字以傳送官方數據...";
                 return;
             }
-
             document.getElementById('statusMessage').innerText = "CONNECTING: 正在解鎖 wiki.gg 雲端數據核心...";
-            debounceTimeout = setTimeout(() => {
-                fetchWikiData(query);
-            }, 300); 
+            debounceTimeout = setTimeout(() => { fetchWikiData(query); }, 300); 
         }
 
-        // 3. 跨網域非同步連線抓取
         async function fetchWikiData(query) {
-            const params = new URLSearchParams({
-                action: "opensearch",
-                profile: "engine_autoselect",
-                search: query,
-                limit: "12", 
-                format: "json",
-                origin: "*" 
-            });
-
+            const params = new URLSearchParams({ action: "opensearch", profile: "engine_autoselect", search: query, limit: "12", format: "json", origin: "*" });
             try {
                 const response = await fetch(`${API_URL}?${params.toString()}`);
                 if (!response.ok) throw new Error("Network response error");
-                
                 const data = await response.json();
-                const titles = data[1] || [];
-                const links = data[3] || [];
-
-                renderResults(titles, links);
-
+                renderResults(data[1] || [], data[3] || []);
             } catch (error) {
                 console.error("API Error:", error);
                 document.getElementById('statusMessage').innerText = "ERROR: 傳送失敗，請檢查網路連線。";
             }
         }
 
-        // 4. 渲染像素結果卡片（點擊直接就地開啟）
         function renderResults(titles, links) {
             const grid = document.getElementById('resultsGrid');
             const status = document.getElementById('statusMessage');
             grid.innerHTML = ''; 
-
-            if (titles.length === 0) {
-                status.innerText = "EMPTY: 官方資料庫中未尋獲對應條目。";
-                return;
-            }
-
+            if (titles.length === 0) { status.innerText = "EMPTY: 官方資料庫中未尋獲對應條目。"; return; }
             status.innerText = `SUCCESS: 已即時解鎖 ${titles.length} 筆數據條目：`;
-
             titles.forEach((title, index) => {
                 const originUrl = links[index];
                 const pageName = originUrl.substring(originUrl.lastIndexOf('/') + 1);
                 const targetUrl = `${WIKI_BASE}${pageName}${VARIANT}`;
-
                 const card = document.createElement('div');
                 card.className = 'pixel-card';
                 card.innerHTML = `
@@ -540,52 +510,33 @@
                     <h3 class="card-item-title">${title}</h3>
                     <p class="card-item-desc">點擊將內容就地傳送至右側觀測鏡，解析「${title}」的最高階合成表與機制細節。</p>
                 `;
-                
                 card.onclick = () => teleportToViewport(targetUrl, title);
                 grid.appendChild(card);
             });
         }
 
-        // 5. 智慧觀測鏡就地傳送控制（完美終極版：支援手機端自動聚焦與平滑滾動）
         function teleportToViewport(url, title) {
             const frame = document.getElementById('wikiFrame');
             const placeholder = document.getElementById('teleportPlaceholder');
             const placeholderText = document.getElementById('placeholderText');
             const rightPanel = document.querySelector('.right-panel');
-
-            // 1. 隱藏前一個網頁，並讓等待遮罩完全擋住，防止視覺閃爍
             frame.classList.remove('viewport-active');
-            placeholder.style.pointerEvents = 'auto'; // 阻擋點擊，避免重複觸發
+            placeholder.style.pointerEvents = 'auto';
             placeholder.style.opacity = '1';
             placeholderText.innerText = `⚡ 正在同步「${title}」的世界線數據...`;
-
-            // 2. 清除舊的載入事件，確保本次載入邏輯乾淨獨立
             frame.onload = null;
-
-            // 3. 重新為 iframe 綁定標準的載入完成監聽器
             frame.onload = function() {
                 placeholder.style.opacity = '0';
-                placeholder.style.pointerEvents = 'none'; // 解除遮罩阻擋，完全釋放滑鼠穿透權限
+                placeholder.style.pointerEvents = 'none';
                 frame.classList.add('viewport-active'); 
                 document.getElementById('statusMessage').innerText = `VIEWING: 目前正在瀏覽「${title}」的官方維基頁面`;
-                console.log(`[Teleport] ${title} 數據同步完成，跨端權限已釋放。`);
             };
-
-            // 4. 正式將網址注入鏡頭框架
             frame.src = url;
-
-            // 5. 【行動端專屬優化】偵測螢幕寬度，若為手機/平板則自動平滑對焦至觀測鏡
             if (window.innerWidth <= 768) {
-                setTimeout(() => {
-                    rightPanel.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start'      
-                    });
-                }, 50);
+                setTimeout(() => { rightPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
             }
         }
 
-        // 初始化
         window.onload = initBackgroundParticles;
     </script>
 </body>
