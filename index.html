@@ -267,7 +267,6 @@
 
         .viewport-active { opacity: 1; }
 
-        /* 📱 行動裝置完美響應式斷點設定 */
         @media (max-width: 992px) {
             body {
                 flex-direction: column;
@@ -315,9 +314,9 @@
         <div class="game-status-panel" id="statusMessage">READY: 輸入關鍵字後按下 Enter 或點擊傳送...</div>
 
         <div class="tips-box">
-            <p style="margin-top:0; color:#fff; font-weight:800;">💡 智慧導航終極協議：</p>
-            1. **原版模式**：100% 強制繁體化，搜尋結果直接在右側（或手機下方）無痛看。<br><br>
-            2. **灰機災厄模式**：對接官方開放檢索鏈結，送出後自動調用灰機伺服器核心直擊道具正文，手機電腦均完美相容。
+            <p style="margin-top:0; color:#fff; font-weight:800;">💡 智慧導航終極協定：</p>
+            1. **原版模式**：原封不動完整套用指定之 `https://terraria.wiki.gg/zh/wiki/Terraria_Wiki?variant=zh-tw` 網址列，保障繁體化版面。<br><br>
+            2. **灰機災厄模式**：採用官方標準外掛式搜尋窗口協定，一秒跳轉正文專頁，手機電腦皆完美相容。
         </div>
     </div>
 
@@ -330,7 +329,6 @@
     </div>
 
     <script {nonce}>
-        // 核心設定完全物理隔離，確保互不干擾
         const CONFIG = {
             vanilla: {
                 title: "Terraria",
@@ -400,13 +398,12 @@
             if (!query) return;
 
             if (currentMode === 'calamity') {
-                // ⚡ 灰機維基標準外掛式檢索窗口（完全不帶 Special:Search，100% 繞過 Google 與高級搜尋死胡同）
                 const targetUrl = `https://calamity.huijiwiki.com/index.php?search=${encodeURIComponent(query)}`;
                 document.getElementById('statusMessage').innerText = `LAUNCH: 已交由灰機核心載入「${query}」數據專頁。`;
                 window.open(targetUrl, '_blank');
             } else {
-                // ⚡ 原版模式：獨立封裝，強制使用官方 zh-tw 繁體化設定，絕不跑板
-                const targetUrl = `https://terraria.wiki.gg/zh/wiki/Special:Search?search=${encodeURIComponent(query.replace(/\s+/g, '_'))}&variant=zh-tw`;
+                // ⚡ 完全按照指定：將指定路徑完整原封不動貼上，再將 search 參數掛接在最後端
+                const targetUrl = `https://terraria.wiki.gg/zh/wiki/Terraria_Wiki?variant=zh-tw&search=${encodeURIComponent(query)}`;
                 document.getElementById('statusMessage').innerText = `TRANSMITTING: 正在將「${query}」送往右側觀測鏡...`;
                 teleportToViewport(targetUrl, query);
             }
@@ -420,7 +417,7 @@
             frame.classList.remove('viewport-active');
             placeholder.style.pointerEvents = 'auto';
             placeholder.style.opacity = '1';
-            placeholderText.innerText = `⚡ 正在傳送「${title}」數據並執行前端繁體化化渲染...`;
+            placeholderText.innerText = `⚡ 正在傳送「${title}」數據並維護繁體化渲染...`;
             
             frame.onload = function() {
                 placeholder.style.opacity = '0';
