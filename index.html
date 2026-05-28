@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terraria 像素結晶智慧導航站</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Terraria 導航站">
     <style>
@@ -23,7 +22,7 @@
             --card-border-retro: #222533;
             --text-primary: #ffffff;
             --text-secondary: #718096;
-            --font-pixel: "Microsoft JhengHei", sans-serif;
+            --font-pixel: "Segoe UI", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
         }
 
         /* 網頁本體：強制全螢幕雙欄版面 */
@@ -42,6 +41,8 @@
             flex-direction: row; /* 改為左右雙欄分割 */
             overflow: hidden;
             position: relative;
+            line-height: 1.6;
+            letter-spacing: 0.05em;
         }
 
         /* 背景動態粒子容器 */
@@ -86,97 +87,112 @@
             overflow-y: auto;
             z-index: 10;
             border-right: 4px solid #1a1d30;
-            background: rgba(9, 10, 20, 0.6);
-            backdrop-filter: blur(10px);
+            background: rgba(9, 10, 20, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .pixel-title {
             font-size: 4rem;
             font-weight: 900;
             margin: 0;
-            letter-spacing: 12px;
+            letter-spacing: 14px;
             text-transform: uppercase;
-            background: linear-gradient(to bottom, #ffffff 30%, #00e5ff 80%);
+            background: linear-gradient(to bottom, #ffffff 20%, var(--color-mana) 90%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             
-            filter: drop-shadow(3px 0px 0px #0c0d1a)
-                    drop-shadow(-3px 0px 0px #0c0d1a)
-                    drop-shadow(0px 3px 0px #0c0d1a)
-                    drop-shadow(0px -3px 0px #0c0d1a)
-                    drop-shadow(3px 3px 0px #0c0d1a)
-                    drop-shadow(-3px -3px 0px #0c0d1a)
-                    drop-shadow(5px 5px 15px rgba(0, 229, 255, 0.4));
+            filter: drop-shadow(4px 0px 0px #0c0d1a)
+                    drop-shadow(-4px 0px 0px #0c0d1a)
+                    drop-shadow(0px 4px 0px #0c0d1a)
+                    drop-shadow(0px -4px 0px #0c0d1a)
+                    drop-shadow(4px 4px 0px #0c0d1a)
+                    drop-shadow(-4px -4px 0px #0c0d1a)
+                    drop-shadow(0px 8px 20px rgba(0, 229, 255, 0.4));
             
             animation: titlePulse 3s infinite alternate ease-in-out;
         }
 
         @keyframes titlePulse {
-            0% { filter: drop-shadow(3px 0px 0px #0c0d1a) drop-shadow(-3px 0px 0px #0c0d1a) drop-shadow(0px 3px 0px #0c0d1a) drop-shadow(0px -3px 0px #0c0d1a) drop-shadow(5px 5px 10px rgba(0, 229, 255, 0.3)); }
-            100% { filter: drop-shadow(3px 0px 0px #0c0d1a) drop-shadow(-3px 0px 0px #0c0d1a) drop-shadow(0px 3px 0px #0c0d1a) drop-shadow(0px -3px 0px #0c0d1a) drop-shadow(5px 5px 25px rgba(0, 229, 255, 0.6)); }
+            0% { filter: drop-shadow(4px 0px 0px #0c0d1a) drop-shadow(-4px 0px 0px #0c0d1a) drop-shadow(0px 4px 0px #0c0d1a) drop-shadow(0px -4px 0px #0c0d1a) drop-shadow(0px 6px 15px rgba(0, 229, 255, 0.35)); }
+            100% { filter: drop-shadow(4px 0px 0px #0c0d1a) drop-shadow(-4px 0px 0px #0c0d1a) drop-shadow(0px 4px 0px #0c0d1a) drop-shadow(0px -4px 0px #0c0d1a) drop-shadow(0px 12px 30px rgba(0, 229, 255, 0.65)); }
         }
 
         .pixel-subtitle {
-            font-size: 0.95rem;
-            color: #a0aec0;
-            letter-spacing: 4px;
-            margin: 10px 0 35px 0;
+            font-size: 1rem;
+            color: #b0bfc1;
+            letter-spacing: 5px;
+            margin: 15px 0 35px 0;
             text-transform: uppercase;
             display: flex;
             align-items: center;
             gap: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
         }
 
         .pixel-subtitle::after {
             content: "";
             flex-grow: 1;
             height: 4px;
-            background: var(--color-chlorophyte);
-            box-shadow: 0 0 8px var(--color-chlorophyte);
+            background: linear-gradient(90deg, var(--color-chlorophyte), transparent);
+            box-shadow: 0 0 10px var(--color-chlorophyte);
         }
 
         .search-pixel-box {
             position: relative;
-            background: #111424;
-            border: 4px solid #fff;
-            box-shadow: 0 0 0 4px #1a1d30, 0 15px 35px rgba(0,0,0,0.6);
+            background: linear-gradient(135deg, #12162b 0%, #0c0e1a 100__);
+            border: 4px solid #ffffff;
+            box-shadow: 0 0 0 4px #1a1d30, 4px 4px 0px 4px rgba(0,0,0,0.5), inset 0 2px 8px rgba(0,0,0,0.6);
             border-radius: 4px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            transition: border-color 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .search-pixel-box:focus-within {
             border-color: var(--color-mana);
-            box-shadow: 0 0 0 4px #1a1d30, 0 0 25px rgba(0, 229, 255, 0.35);
+            box-shadow: 0 0 0 4px #1a1d30, 0 0 25px rgba(0, 229, 255, 0.5), inset 0 2px 4px rgba(0,0,0,0.4);
             transform: translateY(-2px);
         }
 
         .search-pixel-input {
             width: 100%;
             box-sizing: border-box;
-            padding: 18px 20px;
-            font-size: 1.1rem;
+            padding: 18px 24px;
+            font-size: 1.15rem;
+            font-family: var(--font-pixel);
             background: transparent;
             border: none;
             color: #ffffff;
             outline: none;
+            letter-spacing: 1px;
+        }
+
+        .search-pixel-input::placeholder {
+            color: #4a5568;
+            letter-spacing: 1px;
         }
 
         .game-status-panel {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--color-hallow);
             margin-bottom: 30px;
-            font-weight: bold;
+            font-weight: 700;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
         }
 
         .game-status-panel::before {
             content: "●";
             color: var(--color-chlorophyte);
-            animation: blink 1s infinite alternate;
+            font-size: 0.8rem;
+            text-shadow: 0 0 8px var(--color-chlorophyte);
+            animation: blink 1s infinite alternate cubic-bezier(0.4, 0, 0.6, 1);
         }
+
+        @keyframes blink { 0% { opacity: 0.3; } 100% { opacity: 1; } }
 
         .pixel-grid {
             display: grid;
@@ -186,65 +202,73 @@
 
         /* 移除點擊卡片跳轉跳出頁面的預設行為，改為觸發內嵌機制 */
         .pixel-card {
-            background: #13172c;
-            border: 3px solid #282d47;
-            box-shadow: 4px 4px 0px #090a14;
-            padding: 20px;
+            background: linear-gradient(135deg, #151a36 0%, #0e1124 100__);
+            border: 3px solid #2d3454;
+            box-shadow: 5px 5px 0px #05060b;
+            padding: 24px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             position: relative;
-            transition: all 0.2s ease;
+            border-radius: 2px;
+            transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
         }
 
         .pixel-card:hover {
             transform: translateY(-4px) translateX(-2px);
             border-color: var(--color-chlorophyte);
-            background: #181d3a;
-            box-shadow: 6px 6px 0px #05060b, 0 0 15px rgba(0, 255, 102, 0.15);
+            background: linear-gradient(135deg, #1c2347 0%, #11152e 100__);
+            box-shadow: 7px 7px 0px #020305, 0 0 20px rgba(0, 255, 102, 0.25);
         }
 
         .card-rarity-indicator {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 10px;
-            height: 10px;
+            top: 18px;
+            right: 18px;
+            width: 12px;
+            height: 12px;
             background: var(--color-mana);
+            box-shadow: 0 0 8px var(--color-mana);
+            transition: background 0.2s ease, box-shadow 0.2s ease;
         }
 
         .pixel-card:hover .card-rarity-indicator {
             background: var(--color-life);
+            box-shadow: 0 0 8px var(--color-life);
         }
 
         .card-meta-info {
-            font-size: 0.7rem;
-            letter-spacing: 1px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #5a6578;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
 
         .card-item-title {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: #ffffff;
-            margin: 0 0 8px 0;
-            text-shadow: 2px 2px 0px #090a14;
-            transition: all 0.3s ease;
+            margin: 0 0 10px 0;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0px #05060b, -1px -1px 0px #05060b, 1px -1px 0px #05060b, -1px 1px 0px #05060b;
+            transition: color 0.2s ease, filter 0.2s ease;
         }
 
         .pixel-card:hover .card-item-title {
-            background: linear-gradient(to bottom, #ffffff 20%, #ffbe0b 100%);
+            background: linear-gradient(to bottom, #ffffff 20%, var(--color-hallow) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(2px 0px 0px #090a14) drop-shadow(-2px 0px 0px #090a14) drop-shadow(0px 2px 0px #090a14) drop-shadow(0px -2px 0px #090a14);
+            filter: drop-shadow(2px 2px 0px #05060b);
         }
 
         .card-item-desc {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #a0aec0;
-            line-height: 1.5;
+            line-height: 1.6;
             margin: 0;
+            letter-spacing: 0.5px;
         }
 
         /* ==========================================
@@ -254,11 +278,9 @@
             width: 55%;
             height: 100vh;
             position: relative;
-            background: #0d0f1d;
-            box-shadow: inset 10px 0 30px rgba(0,0,0,0.5);
+            background: #090a12;
+            box-shadow: inset 12px 0 40px rgba(0,0,0,0.7);
             z-index: 5;
-            
-            /* 修正：確保父層具備標準區塊定位，不限制子層高度 */
             display: block; 
             overflow: hidden;
         }
@@ -274,24 +296,24 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: var(--text-secondary);
-            font-weight: bold;
-            letter-spacing: 2px;
+            color: #4a5568;
+            font-weight: 700;
+            letter-spacing: 3px;
             z-index: 2;
-            background: #0d0f1d; /* 加上背景色，防止下方白底透出來 */
-            transition: opacity 0.5s ease, linear-gradient 0.3s;
+            background: linear-gradient(180deg, #0d0f1d 0%, #070810 100__); /* 加上背景色，防止下方白底透出來 */
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none; /* 修正：允許滑鼠事件穿透，避免阻擋點擊 */
         }
 
         .teleport-icon {
-            font-size: 3rem;
+            font-size: 4rem;
             color: var(--color-mana);
-            margin-bottom: 15px;
-            text-shadow: 0 0 15px var(--color-mana);
-            animation: pulseGlow 2s infinite alternate;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.6));
+            animation: pulseGlow 2s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes pulseGlow { 0% { opacity: 0.4; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
+        @keyframes pulseGlow { 0% { opacity: 0.3; transform: scale(0.92) rotate(0deg); } 100% { opacity: 1; transform: scale(1.08) rotate(180deg); } }
 
         /* 核心內嵌鏡頭視窗：徹底解放捲動軸 */
         .wiki-viewport {
@@ -304,9 +326,7 @@
             background: #ffffff;
             opacity: 0;
             z-index: 1;
-            transition: opacity 0.4s ease;
-            
-            /* 修正：強制開啟雙向捲動軸，並允許 iOS 與各瀏覽器流暢拖曳捲動 */
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: auto !important;
             -webkit-overflow-scrolling: touch;
         }
@@ -315,8 +335,9 @@
         .viewport-active {
             opacity: 1;
         }
-/* =========================================================
-           👉 請把【第一階段：手機端彈出式面板樣式】程式碼完整貼在這邊 👈
+
+        /* =========================================================
+           👉 手機端彈出式面板與應變斷點樣式
            ========================================================= */
         @media (max-width: 768px) {
             body {
@@ -328,32 +349,38 @@
                 width: 100%;
                 min-width: 100%;
                 height: 50vh;
-                padding: 20px;
+                padding: 24px;
                 border-right: none;
                 border-bottom: 4px solid #1a1d30;
                 box-sizing: border-box;
             }
             .pixel-title {
                 font-size: 2.8rem;
-                letter-spacing: 6px;
+                letter-spacing: 8px;
                 text-align: center;
             }
             .pixel-subtitle {
-                font-size: 0.85rem;
-                margin-bottom: 20px;
+                font-size: 0.9rem;
+                margin-bottom: 24px;
+                justify-content: center;
+            }
+            .pixel-subtitle::after {
+                display: none;
             }
             .search-pixel-input {
-                padding: 12px 15px;
+                padding: 14px 18px;
                 font-size: 1rem;
             }
             .game-status-panel {
-                margin-bottom: 15px;
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: center;
             }
             .right-panel {
                 width: 100%;
                 height: 50vh;
                 position: relative;
-                box-shadow: inset 0 10px 20px rgba(0,0,0,0.6);
+                box-shadow: inset 0 12px 30px rgba(0,0,0,0.7);
                 overflow-y: scroll !important;
                 -webkit-overflow-scrolling: touch;
             }
@@ -364,21 +391,21 @@
                 -webkit-overflow-scrolling: touch;
             }
             .teleport-placeholder {
-                padding: 20px;
+                padding: 24px;
                 text-align: center;
-                font-size: 0.9rem;
+                font-size: 0.95rem;
             }
             .teleport-icon {
-                font-size: 2.2rem;
+                font-size: 3rem;
+                margin-bottom: 12px;
             }
         }
-
     </style>
 </head>
 <body>
 
     <div class="particle-container" id="soulParticles"></div>
-<div class="left-panel">
+    <div class="left-panel">
         <h1 class="pixel-title">Terraria</h1>
         <div class="pixel-subtitle">官方資料庫 · 即時觀測雷達</div>
         
@@ -388,8 +415,7 @@
 
         <div class="game-status-panel" id="statusMessage">READY: 請輸入關鍵字以傳送官方數據...</div>
 
-        <div class="pixel-grid" id="resultsGrid">
-            </div>
+        <div class="pixel-grid" id="resultsGrid"></div>
     </div>
 
     <div class="right-panel">
@@ -421,10 +447,10 @@
 
         function createParticle(container, colors) {
             const particle = document.createElement('div');
-            particle.className = 'pixel-soul';
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
             const size = Math.floor(Math.random() * 5) + 3;
             
+            particle.className = 'pixel-soul';
             particle.style.left = `${Math.random() * 100}vw`;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
@@ -506,7 +532,6 @@
                 const pageName = originUrl.substring(originUrl.lastIndexOf('/') + 1);
                 const targetUrl = `${WIKI_BASE}${pageName}${VARIANT}`;
 
-                // 建立就地觸發的像素方塊，移除傳統 <a> 標籤跳轉行為
                 const card = document.createElement('div');
                 card.className = 'pixel-card';
                 card.innerHTML = `
@@ -516,9 +541,7 @@
                     <p class="card-item-desc">點擊將內容就地傳送至右側觀測鏡，解析「${title}」的最高階合成表與機制細節。</p>
                 `;
                 
-                // 綁定智慧就地傳送點擊事件
                 card.onclick = () => teleportToViewport(targetUrl, title);
-                
                 grid.appendChild(card);
             });
         }
@@ -541,16 +564,10 @@
 
             // 3. 重新為 iframe 綁定標準的載入完成監聽器
             frame.onload = function() {
-                // 讓遮罩淡出
                 placeholder.style.opacity = '0';
                 placeholder.style.pointerEvents = 'none'; // 解除遮罩阻擋，完全釋放滑鼠穿透權限
-                
-                // 漸進式顯示維基內容，並強制流暢渲染
                 frame.classList.add('viewport-active'); 
-                
-                // 更新狀態面板文字
                 document.getElementById('statusMessage').innerText = `VIEWING: 目前正在瀏覽「${title}」的官方維基頁面`;
-                
                 console.log(`[Teleport] ${title} 數據同步完成，跨端權限已釋放。`);
             };
 
@@ -559,15 +576,17 @@
 
             // 5. 【行動端專屬優化】偵測螢幕寬度，若為手機/平板則自動平滑對焦至觀測鏡
             if (window.innerWidth <= 768) {
-                // 延遲一點點時間（50毫秒），確保 DOM 狀態穩定後再執行滑動
                 setTimeout(() => {
                     rightPanel.scrollIntoView({ 
-                        behavior: 'smooth', // 平滑滾動動畫
-                        block: 'start'      // 對齊到該面板的最上方
+                        behavior: 'smooth', 
+                        block: 'start'      
                     });
                 }, 50);
             }
         }
+
+        // 初始化
+        window.onload = initBackgroundParticles;
     </script>
 </body>
 </html>
