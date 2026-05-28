@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraria 像素結晶智慧導航站</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Terraria 導航站">
+    <style>
+        /* ==========================================
+           1. 全域變數與像素美學環境定義
+           ========================================== */
+        :root {
+            --bg-dark: #090a14;
+            --pixel-size: 4px;
+            --color-mana: #00e5ff;       /* 魔力藍 */
+            --color-life: #ff2a6d;       /* 生命紅 */
+            --color-chlorophyte: #00ff66; /* 葉綠素綠 */
+            --color-hallow: #ffbe0b;      /* 神聖金 */
+            --card-border-retro: #222533;
+            --text-primary: #ffffff;
+            --text-secondary: #718096;
+            --font-pixel: "Microsoft JhengHei", sans-serif;
+        }
+
+        /* 網頁本體：強制全螢幕雙欄版面 */
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0, 229, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(157, 78, 221, 0.08) 0%, transparent 50%),
+                linear-gradient(180deg, #090a14 0%, #05060b 100__);
+            color: var(--text-primary);
+            font-family: var(--font-pixel);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: row; /* 改為左右雙欄分割 */
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 背景動態粒子容器 */
+        .particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .pixel-soul {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--color-mana);
+            box-shadow: 0 0 10px var(--color-mana), 0 0 20px var(--color-mana);
+            opacity: 0.6;
+            bottom: -20px;
+            animation: soulFloat 15s infinite linear;
+        }
+
+        @keyframes soulFloat {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-110vh) translateX(100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* ==========================================
+           2. 左側面板：智慧雷達檢索區（獨立捲動）
+           ========================================== */
+        .left-panel {
+            width: 45%;
+            min-width: 450px;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 40px;
+            overflow-y: auto;
+            z-index: 10;
+            border-right: 4px solid #1a1d30;
+            background: rgba(9, 10, 20, 0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        .pixel-title {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: 12px;
+            text-transform: uppercase;
+            background: linear-gradient(to bottom, #ffffff 30%, #00e5ff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            filter: drop-shadow(3px 0px 0px #0c0d1a)
+                    drop-shadow(-3px 0px 0px #0c0d1a)
+                    drop-shadow(0px 3px 0px #0c0d1a)
+                    drop-shadow(0px -3px 0px #0c0d1a)
+                    drop-shadow(3px 3px 0px #0c0d1a)
+                    drop-shadow(-3px -3px 0px #0c0d1a)
+                    drop-shadow(5px 5px 15px rgba(0, 229, 255, 0.4));
+            
+            animation: titlePulse 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes titlePulse {
+            0% { filter: drop-shadow(3px 0px 0px #0c0d1a) drop-shadow(-3px 0px 0px #0c0d1a) drop-shadow(0px 3px 0px #0c0d1a) drop-shadow(0px -3px 0px #0c0d1a) drop-shadow(5px 5px 10px rgba(0, 229, 255, 0.3)); }
+            100% { filter: drop-shadow(3px 0px 0px #0c0d1a) drop-shadow(-3px 0px 0px #0c0d1a) drop-shadow(0px 3px 0px #0c0d1a) drop-shadow(0px -3px 0px #0c0d1a) drop-shadow(5px 5px 25px rgba(0, 229, 255, 0.6)); }
+        }
+
+        .pixel-subtitle {
+            font-size: 0.95rem;
+            color: #a0aec0;
+            letter-spacing: 4px;
+            margin: 10px 0 35px 0;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pixel-subtitle::after {
+            content: "";
+            flex-grow: 1;
+            height: 4px;
+            background: var(--color-chlorophyte);
+            box-shadow: 0 0 8px var(--color-chlorophyte);
+        }
+
+        .search-pixel-box {
+            position: relative;
+            background: #111424;
+            border: 4px solid #fff;
+            box-shadow: 0 0 0 4px #1a1d30, 0 15px 35px rgba(0,0,0,0.6);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .search-pixel-box:focus-within {
+            border-color: var(--color-mana);
+            box-shadow: 0 0 0 4px #1a1d30, 0 0 25px rgba(0, 229, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .search-pixel-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 18px 20px;
+            font-size: 1.1rem;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            outline: none;
+        }
+
+        .game-status-panel {
+            font-size: 0.85rem;
+            color: var(--color-hallow);
+            margin-bottom: 30px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .game-status-panel::before {
+            content: "●";
+            color: var(--color-chlorophyte);
+            animation: blink 1s infinite alternate;
+        }
+
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* 單欄卡片堆疊，更適合側邊欄 */
+            gap: 20px;
+        }
+
+        /* 移除點擊卡片跳轉跳出頁面的預設行為，改為觸發內嵌機制 */
+        .pixel-card {
+            background: #13172c;
+            border: 3px solid #282d47;
+            box-shadow: 4px 4px 0px #090a14;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .pixel-card:hover {
+            transform: translateY(-4px) translateX(-2px);
+            border-color: var(--color-chlorophyte);
+            background: #181d3a;
+            box-shadow: 6px 6px 0px #05060b, 0 0 15px rgba(0, 255, 102, 0.15);
+        }
+
+        .card-rarity-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
+            background: var(--color-mana);
+        }
+
+        .pixel-card:hover .card-rarity-indicator {
+            background: var(--color-life);
+        }
+
+        .card-meta-info {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .card-item-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 8px 0;
+            text-shadow: 2px 2px 0px #090a14;
+            transition: all 0.3s ease;
+        }
+
+        .pixel-card:hover .card-item-title {
+            background: linear-gradient(to bottom, #ffffff 20%, #ffbe0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(2px 0px 0px #090a14) drop-shadow(-2px 0px 0px #090a14) drop-shadow(0px 2px 0px #090a14) drop-shadow(0px -2px 0px #090a14);
+        }
+
+        .card-item-desc {
+            font-size: 0.85rem;
+            color: #a0aec0;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* ==========================================
+           3. 右側面板：傳送觀測鏡（修正無法捲動與填滿問題）
+           ========================================== */
+        .right-panel {
+            width: 55%;
+            height: 100vh;
+            position: relative;
+            background: #0d0f1d;
+            box-shadow: inset 10px 0 30px rgba(0,0,0,0.5);
+            z-index: 5;
+            
+            /* 修正：確保父層具備標準區塊定位，不限制子層高度 */
+            display: block; 
+            overflow: hidden;
+        }
+
+        /* 預設沒資料時的傳送陣提示 */
+        .teleport-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-weight: bold;
+            letter-spacing: 2px;
+            z-index: 2;
+            background: #0d0f1d; /* 加上背景色，防止下方白底透出來 */
+            transition: opacity 0.5s ease, linear-gradient 0.3s;
+            pointer-events: none; /* 修正：允許滑鼠事件穿透，避免阻擋點擊 */
+        }
+
+        .teleport-icon {
+            font-size: 3rem;
+            color: var(--color-mana);
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px var(--color-mana);
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        @keyframes pulseGlow { 0% { opacity: 0.4; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
+
+        /* 核心內嵌鏡頭視窗：徹底解放捲動軸 */
+        .wiki-viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #ffffff;
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 0.4s ease;
+            
+            /* 修正：強制開啟雙向捲動軸，並允許 iOS 與各瀏覽器流暢拖曳捲動 */
+            overflow: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 當載入完成後啟動顯示 */
+        .viewport-active {
+            opacity: 1;
+        }
+/* =========================================================
+           👉 請把【第一階段：手機端彈出式面板樣式】程式碼完整貼在這邊 👈
+           ========================================================= */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column; 
+                height: 100vh;
+                overflow: hidden;
+            }
+            .left-panel {
+                width: 100%;
+                min-width: 100%;
+                height: 50vh;
+                padding: 20px;
+                border-right: none;
+                border-bottom: 4px solid #1a1d30;
+                box-sizing: border-box;
+            }
+            .pixel-title {
+                font-size: 2.8rem;
+                letter-spacing: 6px;
+                text-align: center;
+            }
+            .pixel-subtitle {
+                font-size: 0.85rem;
+                margin-bottom: 20px;
+            }
+            .search-pixel-input {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+            .game-status-panel {
+                margin-bottom: 15px;
+            }
+            .right-panel {
+                width: 100%;
+                height: 50vh;
+                position: relative;
+                box-shadow: inset 0 10px 20px rgba(0,0,0,0.6);
+                overflow-y: scroll !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            .wiki-viewport {
+                height: 100%;
+                width: 100%;
+                overflow-y: scroll !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            .teleport-placeholder {
+                padding: 20px;
+                text-align: center;
+                font-size: 0.9rem;
+            }
+            .teleport-icon {
+                font-size: 2.2rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="particle-container" id="soulParticles"></div>
+<div class="left-panel">
+        <h1 class="pixel-title">Terraria</h1>
+        <div class="pixel-subtitle">官方資料庫 · 即時觀測雷達</div>
+        
+        <div class="search-pixel-box">
+            <input type="text" id="wikiSearchInput" class="search-pixel-input" placeholder="請輸入武器、王怪、配方名稱..." oninput="debounceSearch()">
+        </div>
+
+        <div class="game-status-panel" id="statusMessage">READY: 請輸入關鍵字以傳送官方數據...</div>
+
+        <div class="pixel-grid" id="resultsGrid">
+            </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="teleport-placeholder" id="teleportPlaceholder">
+            <div class="teleport-icon">🌀</div>
+            <div id="placeholderText">等待數據傳送中...請在左側點擊條目</div>
+        </div>
+        
+        <iframe id="wikiFrame" class="wiki-viewport" title="Terraria Wiki Viewport"></iframe>
+    </div>
+
+    <script>
+        const API_URL = "https://terraria.wiki.gg/zh/api.php";
+        const WIKI_BASE = "https://terraria.wiki.gg/zh/wiki/";
+        const VARIANT = "?variant=zh-tw";
+        
+        let debounceTimeout;
+
+        // 1. 初始化浮游之魂背景粒子
+        function initBackgroundParticles() {
+            const container = document.getElementById('soulParticles');
+            const particleCount = 20;
+            const colors = ['#00e5ff', '#ff2a6d', '#00ff66', '#ffbe0b'];
+
+            for (let i = 0; i < particleCount; i++) {
+                createParticle(container, colors);
+            }
+        }
+
+        function createParticle(container, colors) {
+            const particle = document.createElement('div');
+            particle.className = 'pixel-soul';
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const size = Math.floor(Math.random() * 5) + 3;
+            
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.background = randomColor;
+            particle.style.boxShadow = `0 0 10px ${randomColor}, 0 0 20px ${randomColor}`;
+            
+            const duration = Math.random() * 10 + 10;
+            const delay = Math.random() * -20;
+            
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `${delay}s`;
+
+            container.appendChild(particle);
+
+            particle.addEventListener('animationiteration', () => {
+                particle.style.left = `${Math.random() * 100}vw`;
+            });
+        }
+
+        // 2. 智慧防抖動檢索
+        function debounceSearch() {
+            clearTimeout(debounceTimeout);
+            const query = document.getElementById('wikiSearchInput').value.trim();
+            
+            if (!query) {
+                document.getElementById('resultsGrid').innerHTML = '';
+                document.getElementById('statusMessage').innerText = "READY: 請輸入關鍵字以傳送官方數據...";
+                return;
+            }
+
+            document.getElementById('statusMessage').innerText = "CONNECTING: 正在解鎖 wiki.gg 雲端數據核心...";
+            debounceTimeout = setTimeout(() => {
+                fetchWikiData(query);
+            }, 300); 
+        }
+
+        // 3. 跨網域非同步連線抓取
+        async function fetchWikiData(query) {
+            const params = new URLSearchParams({
+                action: "opensearch",
+                profile: "engine_autoselect",
+                search: query,
+                limit: "12", 
+                format: "json",
+                origin: "*" 
+            });
+
+            try {
+                const response = await fetch(`${API_URL}?${params.toString()}`);
+                if (!response.ok) throw new Error("Network response error");
+                
+                const data = await response.json();
+                const titles = data[1] || [];
+                const links = data[3] || [];
+
+                renderResults(titles, links);
+
+            } catch (error) {
+                console.error("API Error:", error);
+                document.getElementById('statusMessage').innerText = "ERROR: 傳送失敗，請檢查網路連線。";
+            }
+        }
+
+        // 4. 渲染像素結果卡片（點擊直接就地開啟）
+        function renderResults(titles, links) {
+            const grid = document.getElementById('resultsGrid');
+            const status = document.getElementById('statusMessage');
+            grid.innerHTML = ''; 
+
+            if (titles.length === 0) {
+                status.innerText = "EMPTY: 官方資料庫中未尋獲對應條目。";
+                return;
+            }
+
+            status.innerText = `SUCCESS: 已即時解鎖 ${titles.length} 筆數據條目：`;
+
+            titles.forEach((title, index) => {
+                const originUrl = links[index];
+                const pageName = originUrl.substring(originUrl.lastIndexOf('/') + 1);
+                const targetUrl = `${WIKI_BASE}${pageName}${VARIANT}`;
+
+                // 建立就地觸發的像素方塊，移除傳統 <a> 標籤跳轉行為
+                const card = document.createElement('div');
+                card.className = 'pixel-card';
+                card.innerHTML = `
+                    <div class="card-rarity-indicator"></div>
+                    <div class="card-meta-info">DATABASE ENTRY // 0${index + 1}</div>
+                    <h3 class="card-item-title">${title}</h3>
+                    <p class="card-item-desc">點擊將內容就地傳送至右側觀測鏡，解析「${title}」的最高階合成表與機制細節。</p>
+                `;
+                
+                // 綁定智慧就地傳送點擊事件
+                card.onclick = () => teleportToViewport(targetUrl, title);
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // 5. 智慧觀測鏡就地傳送控制（完美終極版：支援手機端自動聚焦與平滑滾動）
+        function teleportToViewport(url, title) {
+            const frame = document.getElementById('wikiFrame');
+            const placeholder = document.getElementById('teleportPlaceholder');
+            const placeholderText = document.getElementById('placeholderText');
+            const rightPanel = document.querySelector('.right-panel');
+
+            // 1. 隱藏前一個網頁，並讓等待遮罩完全擋住，防止視覺閃爍
+            frame.classList.remove('viewport-active');
+            placeholder.style.pointerEvents = 'auto'; // 阻擋點擊，避免重複觸發
+            placeholder.style.opacity = '1';
+            placeholderText.innerText = `⚡ 正在同步「${title}」的世界線數據...`;
+
+            // 2. 清除舊的載入事件，確保本次載入邏輯乾淨獨立
+            frame.onload = null;
+
+            // 3. 重新為 iframe 綁定標準的載入完成監聽器
+            frame.onload = function() {
+                // 讓遮罩淡出
+                placeholder.style.opacity = '0';
+                placeholder.style.pointerEvents = 'none'; // 解除遮罩阻擋，完全釋放滑鼠穿透權限
+                
+                // 漸進式顯示維基內容，並強制流暢渲染
+                frame.classList.add('viewport-active'); 
+                
+                // 更新狀態面板文字
+                document.getElementById('statusMessage').innerText = `VIEWING: 目前正在瀏覽「${title}」的官方維基頁面`;
+                
+                console.log(`[Teleport] ${title} 數據同步完成，跨端權限已釋放。`);
+            };
+
+            // 4. 正式將網址注入鏡頭框架
+            frame.src = url;
+
+            // 5. 【行動端專屬優化】偵測螢幕寬度，若為手機/平板則自動平滑對焦至觀測鏡
+            if (window.innerWidth <= 768) {
+                // 延遲一點點時間（50毫秒），確保 DOM 狀態穩定後再執行滑動
+                setTimeout(() => {
+                    rightPanel.scrollIntoView({ 
+                        behavior: 'smooth', // 平滑滾動動畫
+                        block: 'start'      // 對齊到該面板的最上方
+                    });
+                }, 50);
+            }
+        }
+    </script>
+</body>
+</html>
